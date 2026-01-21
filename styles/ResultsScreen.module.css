@@ -1,0 +1,242 @@
+/* Results Screen Styles */
+
+.resultsContainer {
+    background: linear-gradient(135deg, #1a1a3e 0%, #2d1f5e 50%, #1a1a3e 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+}
+
+.celebrationEmoji {
+    position: absolute;
+    top: 50px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 80px;
+    animation: bounce 1s ease-in-out infinite;
+    z-index: 10;
+}
+
+.resultsCard {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 32px;
+    padding: 45px;
+    max-width: 500px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.3);
+    position: relative;
+    z-index: 10;
+}
+
+.resultsTitle {
+    font-size: 36px;
+    font-weight: 900;
+    color: #333;
+    margin: 0 0 30px 0;
+}
+
+.scoreCircle {
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    margin: 0 auto 35px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 15px 50px rgba(0, 0, 0, 0.2);
+}
+
+.scorePercentage {
+    font-size: 56px;
+    font-weight: 900;
+    color: #fff;
+}
+
+.scoreLabel {
+    font-size: 16px;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.8);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.resultsStats {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 35px;
+    padding: 25px;
+    background: linear-gradient(135deg, #f5f5f5 0%, #eeeeee 100%);
+    border-radius: 20px;
+}
+
+.resultStatBox {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.resultStatIcon {
+    font-size: 32px;
+}
+
+.resultStatValue {
+    font-size: 28px;
+    font-weight: 900;
+    color: #333;
+}
+
+.resultStatLabel {
+    font-size: 12px;
+    color: #666;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.mascotMessage {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 20px;
+    background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+    border-radius: 20px;
+    margin-bottom: 30px;
+}
+
+.resultsMascot {
+    font-size: 50px;
+    animation: bounce 2s ease-in-out infinite;
+}
+
+.mascotSays {
+    font-size: 16px;
+    font-weight: 600;
+    color: #2e7d32;
+    text-align: left;
+    line-height: 1.5;
+}
+
+.resultsActions {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+}
+
+.retryButton {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 16px 35px;
+    background: linear-gradient(135deg, #7c4dff 0%, #651fff 100%);
+    border: none;
+    border-radius: 30px;
+    color: #fff;
+    font-size: 18px;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 8px 30px rgba(124, 77, 255, 0.4);
+    transition: all 0.3s ease;
+}
+
+.retryButton:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 40px rgba(124, 77, 255, 0.5);
+}
+
+.continueButton {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 16px 35px;
+    background: linear-gradient(135deg, #4caf50 0%, #2e7d32 100%);
+    border: none;
+    border-radius: 30px;
+    color: #fff;
+    font-size: 18px;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 8px 30px rgba(76, 175, 80, 0.4);
+    transition: all 0.3s ease;
+}
+
+.continueButton:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 40px rgba(76, 175, 80, 0.5);
+}
+
+/* Question Review Section */
+.reviewSection {
+    margin-top: 30px;
+    padding-top: 30px;
+    border-top: 2px solid #eee;
+}
+
+.reviewTitle {
+    font-size: 20px;
+    font-weight: 800;
+    color: #333;
+    margin: 0 0 20px 0;
+}
+
+.reviewList {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.reviewItem {
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+    padding: 15px;
+    background: #f9f9f9;
+    border-radius: 15px;
+    text-align: left;
+}
+
+.reviewItemCorrect {
+    border-left: 4px solid #4caf50;
+}
+
+.reviewItemWrong {
+    border-left: 4px solid #f44336;
+}
+
+.reviewIcon {
+    font-size: 24px;
+    flex-shrink: 0;
+}
+
+.reviewContent {
+    flex: 1;
+}
+
+.reviewQuestion {
+    font-size: 14px;
+    font-weight: 700;
+    color: #333;
+    margin: 0 0 8px 0;
+}
+
+.reviewAnswer {
+    font-size: 13px;
+    color: #666;
+    margin: 0;
+}
+
+.reviewAnswerCorrect {
+    color: #4caf50;
+}
+
+.reviewAnswerWrong {
+    color: #f44336;
+}
