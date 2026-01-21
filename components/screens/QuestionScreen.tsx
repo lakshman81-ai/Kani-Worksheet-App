@@ -171,7 +171,7 @@ export default function QuestionScreen() {
                         <button className={styles.zoomButton}>🔍 Zoom</button>
                     </div>
 
-                    <div className={styles.questionText}>
+                    <div id="question-text" className={styles.questionText}>
                         {currentQuestion.text}
                     </div>
 
@@ -201,7 +201,11 @@ export default function QuestionScreen() {
                 </div>
 
                 {/* Answers Panel */}
-                <div className={styles.answersPanel}>
+                <div
+                    className={styles.answersPanel}
+                    role="radiogroup"
+                    aria-labelledby="question-text"
+                >
                     {currentQuestion.answers.map((answer) => (
                         <div
                             key={answer.id}
@@ -210,7 +214,12 @@ export default function QuestionScreen() {
                             role="radio"
                             aria-checked={state.selectedAnswer === answer.id}
                             tabIndex={0}
-                            onKeyPress={(e) => e.key === 'Enter' && !state.questionAnswered && dispatch({ type: 'SELECT_ANSWER', answerId: answer.id })}
+                            onKeyDown={(e) => {
+                                if ((e.key === 'Enter' || e.key === ' ') && !state.questionAnswered) {
+                                    e.preventDefault();
+                                    dispatch({ type: 'SELECT_ANSWER', answerId: answer.id });
+                                }
+                            }}
                         >
                             <span className={`${styles.answerBadge} ${state.selectedAnswer === answer.id ? styles.answerBadgeSelected : ''}`}>
                                 {answer.id}
