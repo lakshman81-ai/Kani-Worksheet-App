@@ -240,6 +240,12 @@
     box-shadow: 0 12px 40px rgba(124, 77, 255, 0.2);
 }
 
+.answerCard:focus-visible {
+    outline: 3px solid #ffd700;
+    outline-offset: 4px;
+    box-shadow: 0 0 0 6px rgba(255, 215, 0, 0.3);
+}
+
 .answerSelected {
     background: linear-gradient(135deg, #7c4dff 0%, #651fff 100%);
     border-color: #7c4dff;
