@@ -86,12 +86,13 @@ export default function LoginScreen({ leaderboard, onShowSettings }: LoginScreen
 
                     {/* Name input */}
                     <div className={styles.inputGroup}>
-                        <label className={styles.modernLabel}>
+                        <label className={styles.modernLabel} htmlFor="playerName">
                             <span className={styles.labelIcon}>👤</span>
                             What's your name, champion?
                         </label>
                         <div className={styles.inputWrapper}>
                             <input
+                                id="playerName"
                                 ref={nameInputRef}
                                 type="text"
                                 placeholder="Enter your name..."
