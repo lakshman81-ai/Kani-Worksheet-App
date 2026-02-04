@@ -3,42 +3,56 @@
     "id": "ws1",
     "name": "Worksheet 1 - Verbs",
     "path": "Worksheet 1 - Verbs",
-    "description": "Auto-generated from folder Worksheet 1 - Verbs"
+    "description": "Auto-generated from folder Worksheet 1 - Verbs",
+    "icon": "\ud83c\udfc3",
+    "color": "#E91E63"
   },
   {
     "id": "ws2",
     "name": "Worksheet 2 - Adverbs",
     "path": "Worksheet 2 - Adverbs",
-    "description": "Auto-generated from folder Worksheet 2 - Adverbs"
+    "description": "Auto-generated from folder Worksheet 2 - Adverbs",
+    "icon": "\ud83d\ude80",
+    "color": "#2196F3"
   },
   {
     "id": "ws3",
     "name": "Worksheet 3 - Tenses",
     "path": "Worksheet 3 - Tenses",
-    "description": "Auto-generated from folder Worksheet 3 - Tenses"
+    "description": "Auto-generated from folder Worksheet 3 - Tenses",
+    "icon": "\ud83d\udd52",
+    "color": "#9C27B0"
   },
   {
     "id": "ws4",
     "name": "Worksheet 4 - Articles",
     "path": "Worksheet 4 - Articles",
-    "description": "Auto-generated from folder Worksheet 4 - Articles"
+    "description": "Auto-generated from folder Worksheet 4 - Articles",
+    "icon": "\ud83c\udd70\ufe0f",
+    "color": "#009688"
   },
   {
     "id": "ws5",
     "name": "Worksheet 5 - Punctuation",
     "path": "Worksheet 5 - Punctuation",
-    "description": "Auto-generated from folder Worksheet 5 - Punctuation"
+    "description": "Auto-generated from folder Worksheet 5 - Punctuation",
+    "icon": "\u2757",
+    "color": "#FF9800"
   },
   {
     "id": "ws6",
     "name": "Worksheet 6 - Poetry",
     "path": "Worksheet 6 - Poetry",
-    "description": "Auto-generated from folder Worksheet 6 - Poetry"
+    "description": "Auto-generated from folder Worksheet 6 - Poetry",
+    "icon": "\ud83d\udcdc",
+    "color": "#795548"
   },
   {
     "id": "ws7",
     "name": "Worksheet 7 - Fractions",
     "path": "Worksheet 7 - Fractions",
-    "description": "Auto-generated from folder Worksheet 7 - Fractions"
+    "description": "Auto-generated from folder Worksheet 7 - Fractions",
+    "icon": "\ud83c\udf70",
+    "color": "#4CAF50"
   }
 ]

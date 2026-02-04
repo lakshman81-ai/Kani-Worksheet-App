@@ -43,6 +43,8 @@ interface QuizState {
     showKnowMorePopup: boolean;
     // Map of topicId -> worksheetId (e.g., { 'math': 'ws1', 'geography': 'ws2' })
     worksheetSettings: Record<string, string>;
+    // Map of tileIndex (1-10) -> worksheetId (e.g. { 1: 'ws1', 2: 'ws7' })
+    tileSettings: Record<number, string>;
     currentWorksheetName?: string;
 }
 
@@ -70,6 +72,7 @@ type QuizAction =
     | { type: 'RESET_QUIZ' }
     | { type: 'RESTORE_PROGRESS'; data: Partial<QuizState> }
     | { type: 'SET_WORKSHEET'; topicId: string; worksheetId: string }
+    | { type: 'SET_TILE_CONFIG'; tileIndex: number; worksheetId: string }
     | { type: 'SET_CURRENT_WORKSHEET_NAME'; name: string };
 
 // Initial state
@@ -95,6 +98,15 @@ const initialState: QuizState = {
     usedKnowMoreBeforeAnswer: false,
     showKnowMorePopup: false,
     worksheetSettings: {},
+    tileSettings: {
+        1: 'ws1', // Verbs
+        2: 'ws3', // Tenses
+        3: 'ws2', // Adverbs
+        4: 'ws4', // Articles
+        5: 'ws5', // Punctuation
+        6: 'ws6', // Poetry
+        7: 'ws7', // Fractions
+    },
     currentWorksheetName: undefined,
 };
 
@@ -227,6 +239,14 @@ function quizReducer(state: QuizState, action: QuizAction): QuizState {
                     [action.topicId]: action.worksheetId
                 }
             };
+        case 'SET_TILE_CONFIG':
+            return {
+                ...state,
+                tileSettings: {
+                    ...state.tileSettings,
+                    [action.tileIndex]: action.worksheetId
+                }
+            };
         case 'SET_CURRENT_WORKSHEET_NAME':
             return { ...state, currentWorksheetName: action.name };
         default:
@@ -261,6 +281,7 @@ export function QuizProvider({ children }: QuizProviderProps) {
     const [savedPlayerName] = useLocalStorage('player-name', '');
     const [savedMascot] = useLocalStorage('selected-mascot', 'unicorn');
     const [savedWorksheetSettings] = useLocalStorage('worksheet-settings', {});
+    const [savedTileSettings] = useLocalStorage('tile-settings', {});
 
     useEffect(() => {
         if (savedPlayerName) {
@@ -275,6 +296,11 @@ export function QuizProvider({ children }: QuizProviderProps) {
                 dispatch({ type: 'SET_WORKSHEET', topicId: tId, worksheetId: wId as string });
             });
         }
+        if (savedTileSettings && Object.keys(savedTileSettings).length > 0) {
+            Object.entries(savedTileSettings).forEach(([idx, wId]) => {
+                 dispatch({ type: 'SET_TILE_CONFIG', tileIndex: parseInt(idx), worksheetId: wId as string });
+            });
+        }
     }, [savedPlayerName, savedMascot]);
 
     // Save settings when they change
@@ -283,6 +309,12 @@ export function QuizProvider({ children }: QuizProviderProps) {
             localStorage.setItem('worksheet-settings', JSON.stringify(state.worksheetSettings));
         }
     }, [state.worksheetSettings]);
+
+    useEffect(() => {
+        if (Object.keys(state.tileSettings).length > 0) {
+            localStorage.setItem('tile-settings', JSON.stringify(state.tileSettings));
+        }
+    }, [state.tileSettings]);
 
     // Timer effect
     useEffect(() => {

@@ -103,43 +103,33 @@ export default function SettingsScreen({
                 </div>
             )}
 
-            {/* Worksheet Selection Section */}
+            {/* Tile Configuration Section */}
             {worksheetConfigs.length > 0 && (
                 <div className={styles.settingsSection}>
-                    <h2 className={styles.settingsSectionTitle}>📚 Active Worksheets</h2>
+                    <h2 className={styles.settingsSectionTitle}>📚 Workbook Tiles</h2>
                     <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '14px', marginBottom: '15px' }}>
-                        Choose where to load questions from for each topic:
+                        Configure the 10 standard tiles on the home screen. Assign a worksheet to a tile to show it.
                     </p>
                     <div className={styles.otherSettingsCard}>
-                        {topicConfigs.map((config) => {
-                            const topicId = config.topic.toLowerCase().replace(/\s+/g, '-');
-                            // Need to map config topic name to internal ID correctly or use name.
-                            // Internal IDs: space, geography (English), math, spell (Spell Check)
-                            // Config topics: Theme, English, Math, Spell Check
-                            // Let's deduce ID:
-                            let internalId = 'unknown';
-                            if (config.topic === 'Theme') internalId = 'space';
-                            else if (config.topic === 'English') internalId = 'geography';
-                            else if (config.topic === 'Math') internalId = 'math';
-                            else if (config.topic === 'Spell Check') internalId = 'spell';
-
-                            const currentVal = state.worksheetSettings[internalId] || 'remote';
+                        {Array.from({ length: 10 }, (_, i) => i + 1).map((tileIndex) => {
+                            const currentWorksheetId = state.tileSettings[tileIndex] || '';
+                            const selectedWorksheet = worksheetConfigs.find(w => w.id === currentWorksheetId);
 
                             return (
-                                <div key={config.topic} className={styles.settingRow} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '10px', marginBottom: '10px' }}>
+                                <div key={tileIndex} className={styles.settingRow} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '10px', marginBottom: '10px' }}>
                                     <div className={styles.settingInfo}>
                                         <span className={styles.settingIcon}>
-                                            {config.topic === 'Theme' ? '🚀' :
-                                                config.topic === 'English' ? '🌍' :
-                                                    config.topic === 'Math' ? '🔢' : '✏️'}
+                                            {selectedWorksheet ? (selectedWorksheet as any).icon || '📝' : '⬛'}
                                         </span>
-                                        <span className={styles.settingName}>{config.topic}</span>
+                                        <span className={styles.settingName}>
+                                            Tile {tileIndex} {selectedWorksheet ? `(${selectedWorksheet.name})` : '(Empty)'}
+                                        </span>
                                     </div>
                                     <select
-                                        value={currentVal}
+                                        value={currentWorksheetId}
                                         onChange={(e) => {
                                             const val = e.target.value;
-                                            dispatch({ type: 'SET_WORKSHEET', topicId: internalId, worksheetId: val === 'remote' ? '' : val });
+                                            dispatch({ type: 'SET_TILE_CONFIG', tileIndex, worksheetId: val });
                                         }}
                                         style={{
                                             padding: '8px 12px',
@@ -153,11 +143,11 @@ export default function SettingsScreen({
                                             maxWidth: '200px'
                                         }}
                                     >
-                                        <option value="remote" style={{ color: 'black' }}>☁️ Remote (Google Sheets)</option>
-                                        <optgroup label="Local Worksheets" style={{ color: 'black' }}>
+                                        <option value="" style={{ color: '#888' }}>🚫 Hide Tile</option>
+                                        <optgroup label="Available Worksheets" style={{ color: 'black' }}>
                                             {worksheetConfigs.map(ws => (
                                                 <option key={ws.id} value={ws.id} style={{ color: 'black' }}>
-                                                    📂 {ws.name}
+                                                    {ws.name}
                                                 </option>
                                             ))}
                                         </optgroup>

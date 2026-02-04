@@ -1,5 +1,7 @@
-<svg width="200" height="200" xmlns="http://www.w3.org/2000/svg">
-  <rect width="100%" height="100%" fill="#f0f0f0" />
-  <text x="50%" y="50%" font-size="40" text-anchor="middle" dy=".3em" fill="#333">5/7</text>
-  <circle cx="100" cy="100" r="80" stroke="#4CAF50" stroke-width="5" fill="none" />
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+<path d="M 100 100 L 100.0 20.0 A 80 80 0 0 1 176.0845213036123 75.2786404500042 Z" fill="#4CAF50" stroke="#333" stroke-width="2" />
+<path d="M 100 100 L 176.0845213036123 75.2786404500042 A 80 80 0 0 1 147.02282018339787 164.72135954999578 Z" fill="#ffffff" stroke="#333" stroke-width="2" />
+<path d="M 100 100 L 147.02282018339787 164.72135954999578 A 80 80 0 0 1 52.97717981660216 164.72135954999578 Z" fill="#ffffff" stroke="#333" stroke-width="2" />
+<path d="M 100 100 L 52.97717981660216 164.72135954999578 A 80 80 0 0 1 23.91547869638771 75.27864045000422 Z" fill="#ffffff" stroke="#333" stroke-width="2" />
+<path d="M 100 100 L 23.91547869638771 75.27864045000422 A 80 80 0 0 1 99.99999999999999 20.0 Z" fill="#ffffff" stroke="#333" stroke-width="2" />
 </svg>

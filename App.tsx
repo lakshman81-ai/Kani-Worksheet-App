@@ -141,6 +141,7 @@ function AppContent() {
           <LandingScreen
             topics={TOPICS}
             topicConfigs={topicConfigs}
+            worksheetConfigs={worksheetConfigs}
             onTopicClick={handleTopicClick}
             onShowSettings={() => setShowPasswordModal(true)}
           />
