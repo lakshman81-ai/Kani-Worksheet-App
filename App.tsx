@@ -78,7 +78,13 @@ function AppContent() {
       // Determine local base path if a worksheet is selected for this topic
       let localBasePath = undefined;
       let worksheetName = 'Remote';
-      const topicWorksheetId = state.worksheetSettings[topic.id];
+
+      // Default to the topic's worksheet number if no specific setting is found
+      let topicWorksheetId = state.worksheetSettings[topic.id];
+      if (!topicWorksheetId && topic.worksheetNumber) {
+        topicWorksheetId = `ws${topic.worksheetNumber}`;
+      }
+
       if (topicWorksheetId) {
         const wsConfig = worksheetConfigs.find(w => w.id === topicWorksheetId);
         if (wsConfig) {
