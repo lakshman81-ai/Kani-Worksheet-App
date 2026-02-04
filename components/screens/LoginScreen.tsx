@@ -86,12 +86,13 @@ export default function LoginScreen({ leaderboard, onShowSettings }: LoginScreen
 
                     {/* Name input */}
                     <div className={styles.inputGroup}>
-                        <label className={styles.modernLabel}>
+                        <label className={styles.modernLabel} htmlFor="playerNameInput">
                             <span className={styles.labelIcon}>👤</span>
                             What's your name, champion?
                         </label>
                         <div className={styles.inputWrapper}>
                             <input
+                                id="playerNameInput"
                                 ref={nameInputRef}
                                 type="text"
                                 placeholder="Enter your name..."
@@ -133,7 +134,12 @@ export default function LoginScreen({ leaderboard, onShowSettings }: LoginScreen
                                     role="radio"
                                     aria-checked={state.selectedMascot === mascot.id}
                                     tabIndex={0}
-                                    onKeyPress={(e) => e.key === 'Enter' && dispatch({ type: 'SET_MASCOT', mascotId: mascot.id })}
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter' || e.key === ' ') {
+                                            if (e.key === ' ') e.preventDefault();
+                                            dispatch({ type: 'SET_MASCOT', mascotId: mascot.id });
+                                        }
+                                    }}
                                 >
                                     <span className={styles.mascotCardEmoji}>{mascot.emoji}</span>
                                     <span
@@ -159,7 +165,12 @@ export default function LoginScreen({ leaderboard, onShowSettings }: LoginScreen
                             onClick={onShowSettings}
                             role="button"
                             tabIndex={0}
-                            onKeyPress={(e) => e.key === 'Enter' && onShowSettings()}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter' || e.key === ' ') {
+                                    if (e.key === ' ') e.preventDefault();
+                                    onShowSettings();
+                                }
+                            }}
                         >
                             <span>⚙️</span>
                             <span>Settings</span>
