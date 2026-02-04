@@ -1,9 +1,9 @@
 [
   {
     "id": "ws1",
-    "name": "Worksheet 1",
-    "path": "Worksheet 1",
-    "description": "Auto-generated from folder Worksheet 1"
+    "name": "Worksheet 1 - Verbs",
+    "path": "Worksheet 1 - Verbs",
+    "description": "Auto-generated from folder Worksheet 1 - Verbs"
   },
   {
     "id": "ws2",
@@ -13,14 +13,32 @@
   },
   {
     "id": "ws3",
-    "name": "Worksheet 3 - Simple Present",
-    "path": "Worksheet 3 - Simple Present",
-    "description": "Auto-generated from folder Worksheet 3 - Simple Present"
+    "name": "Worksheet 3 - Tenses",
+    "path": "Worksheet 3 - Tenses",
+    "description": "Auto-generated from folder Worksheet 3 - Tenses"
   },
   {
     "id": "ws4",
-    "name": "Worksheet 4 - Fractions",
-    "path": "Worksheet 4 - Fractions",
-    "description": "Auto-generated from folder Worksheet 4 - Fractions"
+    "name": "Worksheet 4 - Articles",
+    "path": "Worksheet 4 - Articles",
+    "description": "Auto-generated from folder Worksheet 4 - Articles"
+  },
+  {
+    "id": "ws5",
+    "name": "Worksheet 5 - Punctuation",
+    "path": "Worksheet 5 - Punctuation",
+    "description": "Auto-generated from folder Worksheet 5 - Punctuation"
+  },
+  {
+    "id": "ws6",
+    "name": "Worksheet 6 - Poetry",
+    "path": "Worksheet 6 - Poetry",
+    "description": "Auto-generated from folder Worksheet 6 - Poetry"
+  },
+  {
+    "id": "ws7",
+    "name": "Worksheet 7 - Fractions",
+    "path": "Worksheet 7 - Fractions",
+    "description": "Auto-generated from folder Worksheet 7 - Fractions"
   }
 ]
