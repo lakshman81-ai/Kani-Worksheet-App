@@ -1,0 +1,26 @@
+[
+  {
+    "id": "ws1",
+    "name": "Worksheet 1",
+    "path": "Worksheet 1",
+    "description": "Auto-generated from folder Worksheet 1"
+  },
+  {
+    "id": "ws2",
+    "name": "Worksheet 2 - Adverbs",
+    "path": "Worksheet 2 - Adverbs",
+    "description": "Auto-generated from folder Worksheet 2 - Adverbs"
+  },
+  {
+    "id": "ws3",
+    "name": "Worksheet 3 - Simple Present",
+    "path": "Worksheet 3 - Simple Present",
+    "description": "Auto-generated from folder Worksheet 3 - Simple Present"
+  },
+  {
+    "id": "ws4",
+    "name": "Worksheet 4 - Fractions",
+    "path": "Worksheet 4 - Fractions",
+    "description": "Auto-generated from folder Worksheet 4 - Fractions"
+  }
+]

@@ -1,0 +1,2970 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>MCQ Challenge – Final</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"/>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+
+/* --- FIX: Prevent layout "jump" when modal opens --- */
+html {
+  overflow-y: scroll;
+}
+
+:root{
+  --accent:#ffd54f;
+  --button-grad-1:#ffd54f;
+  --button-grad-2:#ffc107;
+  --form-border:#ffd54f;
+  --sb-bg: #ffffff;
+  --sb-plate: #f8fafc;
+  --header-text: #DB2777; /* Added theme variable */
+}
+body{font-family:'Inter',sans-serif;margin:0;padding:0;}
+.main-bg, body { font-size: 15px; }
+.kid-card{background:#fff;border-radius:1.25rem;box-shadow:0 10px 20px rgba(0,0,0,0.06);overflow:hidden;}
+.kid-card:hover{transform:translateY(-2px);}
+.main-bg{background-color:#fff7f9;background-image:radial-gradient(#ffeef6 1px,transparent 1px),radial-gradient(#ffeef6 1px,transparent 1px);background-size:42px 42px;background-position:0 0,21px 21px;}
+.button-primary{background:linear-gradient(180deg,var(--button-grad-1),var(--button-grad-2));color:#2b2b2b;font-weight:800;border:none;}
+.button-soft{background:linear-gradient(180deg,#cfe9ff,#76b7ff);color:white;font-weight:800;border:none;}
+.answer-button{
+  transition: transform .12s, box-shadow .12s, background-color .18s, color .18s;
+  background: linear-gradient(180deg,#f0f8ff,#e6f0ff);
+  color:#1e3a8a;
+  border:none;
+  font-weight:700;
+  font-size:15px;
+}
+.answer-button:hover:not(:disabled){
+  transform: translateY(-2px);
+  background: linear-gradient(180deg,#dbeafe,#bfdbfe);
+  color:#0b3d91;
+}
+
+.correct-answer-feedback{
+  background: linear-gradient(180deg,#bbf7d0,#86efac)!important;
+  color:#064e3b!important;
+  box-shadow:0 10px 18px rgba(34,197,94,0.18);
+}
+.wrong-answer-feedback{
+  background: linear-gradient(180deg,#ff9aa2,#ff6b6b)!important;
+  color:#330000!important;
+  box-shadow:0 10px 18px rgba(239,68,68,0.14);
+}
+
+.stage-pop{animation:pop 600ms ease-out;box-shadow:0 10px 28px rgba(99,102,241,0.18);}
+@keyframes pop{0%{transform:scale(0.9);opacity:.6;}50%{transform:scale(1.06);opacity:1;}100%{transform:scale(1);opacity:1;}}
+.sparkle{position:absolute;right:8px;top:-8px;font-size:22px;animation:sparkle 900ms ease-out;pointer-events:none;opacity:0;}
+@keyframes sparkle{0%{opacity:0;transform:translateY(0) scale(0.8);}50%{opacity:1;transform:translateY(-18px) scale(1.08);}100%{opacity:0;transform:translateY(-30px) scale(1);}}
+
+/* Thumbs animation styles */
+.thumbs-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 3rem;
+  font-weight: bold;
+  color: #4ade80;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  z-index: 1000;
+}
+.thumbs-overlay.show {
+  opacity: 1;
+}
+
+/* Scoreboard and other styles omitted for brevity (they're the same as your original file) */
+.scoreboard {
+  width: 180px;
+  min-width: 160px;
+  border-radius: 14px;
+  padding: 14px;
+  background: linear-gradient(180deg, var(--sb-bg), #fbfdff);
+  box-shadow: 0 12px 30px rgba(16,24,40,0.06);
+  border-left: 6px solid var(--accent);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  box-sizing: border-box;
+  transition: transform .12s;
+}
+.scoreboard.compact { width: 100%; min-width: auto; padding: 10px; border-left-width: 6px; }
+.sb-header { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 4px; width: 100%; }
+.sb-mascot { font-size: 30px; line-height: 1; }
+.sb-name { font-weight: 800; font-size: 1.05rem; letter-spacing: -0.2px; }
+.sb-icons { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; width: 100%; justify-items: center; align-items: stretch; }
+.sb-tile { display: flex; flex-direction: column; align-items: center; justify-content: center; background: var(--sb-plate); border-radius: 10px; padding: 8px; min-height: 72px; width: 72px; box-sizing: border-box; box-shadow: 0 6px 12px rgba(16,24,40,0.04); }
+.sb-tile .icon { font-size: 22px; line-height: 1; }
+.sb-tile .label { font-size: 11px; color: #6b7280; margin-top: 6px; }
+.sb-tile .value { font-weight: 800; font-size: 16px; margin-top: 4px; }
+.sb-tile.progress { width: 90px; min-height: 72px; }
+.sb-timer { font-size: 13px; color: #374151; display:flex; align-items:center; gap:8px; margin-top: 2px; padding-top:6px; border-top: 1px dashed rgba(16,24,40,0.03); width: 100%; justify-content: center; }
+@media (max-width: 900px) {
+  .scoreboard { flex-direction: row; align-items: center; padding: 10px; gap: 12px; }
+  .sb-header { display:flex; flex-direction:row; gap:8px; align-items:center; }
+  .sb-name { font-size: 1rem; }
+  .sb-icons { grid-template-columns: repeat(4, minmax(40px,1fr)); gap:8px; width:auto; }
+  .sb-tile { width:56px; min-height:56px; padding:6px; }
+  .sb-tile .label { display:none; }
+  .sb-tile .value { font-size:14px; margin-top:6px; }
+  .sb-timer { border-top: none; padding-top:0; margin-left:auto; }
+}
+.hide-on-empty { visibility: hidden; }
+.question-thumb{width:120px;height:80px;object-fit:cover;border-radius:10px;border:3px solid rgba(255,255,255,0.9);}
+.question-thumb.large{width:180px;height:120px;object-fit:cover;border-radius:14px;border:4px solid rgba(255,255,255,0.9);}
+.question-title { font-weight:700; font-size:1.05rem; }
+.round-btn{border-radius:999px;padding:10px 14px;font-weight:700;border:none;}
+/* REMOVED .qa-random-group CSS rule */
+.qa-card{padding:8px 10px;border-radius:12px;background:linear-gradient(180deg,#ffffff,#f3f7ff);border:2px solid rgba(0,0,0,0.04);box-shadow:0 8px 24px rgba(16,24,40,0.06);z-index:9999;}
+/* ---------- Modal alignment & QA page alignment fix (replace lines ~145-190) ---------- */
+body.modal-open {
+  overflow: hidden !important;        /* prevent the page behind from scrolling */
+  padding-right: 0 !important;       /* avoid scrollbar shift */
+}
+
+/* Backdrop covers entire viewport and centers content */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  display: none;                     /* toggled by .show */
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.45);
+  z-index: 30000;                    /* above everything else */
+  padding: 20px;                     /* space around modal on small screens */
+  box-sizing: border-box;
+}
+
+/* Shown state */
+.modal-backdrop.show {
+  display: flex;
+  align-items: flex-start;           /* top-align so tall modals scroll naturally */
+  justify-content: center;
+  overflow-y: auto;                  /* allow backdrop scroll when content exceeds viewport */
+}
+
+/* Make the modal itself relative & centered horizontally; allow vertical scrolling inside */
+.modal-content {
+  position: relative;                /* FIX: use relative so modal flows within backdrop and scrolls */
+  margin: 40px auto;                 /* top/bottom spacing and center horizontally */
+  background: #fff;
+  border-radius: 12px;
+  padding: 18px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+  max-height: 90vh;                  /* limit height to viewport, allow internal scroll */
+  overflow-y: auto;
+  width: min(100%, 1000px);
+  max-width: calc(100% - 48px);
+  box-sizing: border-box;
+  z-index: 30001;                    /* above backdrop */
+}
+
+/* Keep kid-card inside modal full width and avoid left border bleeding */
+.modal-content.kid-card,
+.modal-content .kid-card {
+  width: 100%;
+  box-sizing: border-box;
+  border-left: none !important;
+}
+
+/* QA textarea styles */
+#qa-export-text {
+  background-color: #fffdfd;
+  border: 2px solid #fbcfe8;
+  border-radius: 10px;
+  font-family: "Courier New", monospace;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  resize: vertical;
+  height: 60vh;
+  display: block;
+  max-width: 100%;
+}
+
+/* Ensure images inside modal don't overflow */
+.modal-content img,
+.modal-content .question-thumb {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Mobile tweaks - smaller padding & full width */
+@media (max-width: 640px) {
+  .modal-content {
+    padding: 12px;
+    width: calc(100% - 32px);
+    max-width: calc(100% - 32px);
+    /* MODIFIED: Removed transform to fix alignment */
+    left: auto;
+    transform: none;
+    margin-top: 20px; /* Add some top margin */
+  }
+  #qa-export-text { font-size: 13px; height: 56vh; }
+}
+
+@media (max-width:900px){.question-thumb{width:140px;height:96px;} }
+
+/* ---------------------- Minimalistic UI overrides ---------------------- */
+/* Applied by adding class `minimal-mode` to <body> */
+.minimal-mode {
+  --accent: #4b5563;
+  --button-grad-1: #f3f4f6;
+  --button-grad-2: #e5e7eb;
+  --form-border: #d1d5db;
+  --sb-bg: #ffffff;
+  --sb-plate: #fafafa;
+  --header-text: #4b5563; /* Added */
+}
+.minimal-mode body,
+.minimal-mode .kid-card,
+.minimal-mode .modal-content {
+  font-family: "Georgia", "Times New Roman", serif;
+  color: #000000;
+}
+.minimal-mode .kid-card { border-radius: 8px; box-shadow: 0 6px 12px rgba(16,24,40,0.04); }
+.minimal-mode .answer-button { background: linear-gradient(180deg,#ffffff,#f3f4f6); color:#111827; }
+.minimal-mode .button-primary { background: none; border: 2px solid var(--form-border); color: #111827; font-weight:700; }
+.minimal-mode .button-soft { background: none; border: 1px solid var(--form-border); color:#111827; font-weight:700; }
+.minimal-mode .question-title { border-left-width: 4px; border-left-color: #d1d5db; background:#fff; }
+.minimal-mode .sb-tile .icon { display: none; }
+.minimal-mode .sb-name { font-weight:700; color:#4b5563; }
+.minimal-mode .sparkle { display: none; }
+.minimal-mode #app-title { color: var(--header-text) !important; font-size: 1.95rem !important; }
+.minimal-mode #app-subtitle { color: #6b7280 !important; font-size: 0.9rem !important; }
+
+/* --- Use theme color for header --- */
+#app-title {
+    font-size: 2.1rem !important;
+    color: var(--header-text) !important; /* Use theme variable */
+}
+#app-subtitle { font-size: 0.92rem !important; }
+.answer-button { font-weight: 700; font-size: 14px; padding: 12px; }
+.question-title { font-weight: 800; font-size: 1.02rem; }
+.topic-line, .question-count { font-weight: 700; font-size: 0.95rem; color: #374151; }
+
+/* ---------------------- Mobile / Device-specific overrides ---------------------- */
+/* Target small phones ~6" portrait. Tweak values as needed. */
+@media (max-width: 420px) {
+  /* general scale down */
+  body.mobile-screen { font-size: 14px; }
+  .main-bg { padding: 10px; }
+  .kid-card { padding: 10px; border-radius: 10px; }
+  #main-screen { padding-bottom: 220px; /* leave room for bottom scoreboard */ }
+
+  /* make heading & question compact */
+  #app-title { font-size: 1.35rem !important; }
+  .question-title { font-size: 1rem !important; padding: 0.75rem !important; }
+
+  /* answer buttons smaller, more compact */
+  .answer-button { padding: 10px !important; font-size: 14px !important; border-radius: 10px !important; }
+  .round-btn { padding: 8px 10px !important; font-size: 13px !important; }
+
+  /* action buttons area: compress and readable */
+  #action-buttons-container .grid { grid-template-columns: repeat(3, 1fr); gap: 6px; }
+  #action-buttons-container button { padding: 8px !important; font-size: 13px !important; }
+
+  /* Scoreboard fixed to bottom and stacked with leaderboard */
+  .scoreboard {
+    position: fixed !important;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100% !important;
+    margin: 0;
+    border-radius: 0;
+    box-shadow: 0 -6px 20px rgba(16,24,40,0.06);
+    display: flex;
+    flex-direction: column;
+    padding: 8px;
+    z-index: 9999;
+  }
+
+  /* header compact */
+  .sb-header { display:flex; flex-direction:row; gap:8px; align-items:center; justify-content:flex-start; }
+  .sb-mascot { display: none; } /* hide mascot icon to save space on phones */
+  .sb-name { font-size: 14px; font-weight: 800; }
+
+  /* icons horizontally arranged */
+  .sb-icons { display:flex; flex-direction:row; gap:8px; overflow-x:auto; padding:6px 0; }
+  .sb-tile { flex: 0 0 auto; min-width: 68px; width: auto; padding:6px; border-radius:8px; }
+  .sb-tile .icon { font-size: 16px; }
+  .sb-tile .value { font-size: 14px; font-weight:800; }
+  .sb-tile .label { font-size: 11px; color: #6b7280; }
+
+  /* leader board inside scoreboard (stacked under the tiles) */
+  .leaderboard { margin-top: 6px; background: transparent; padding: 4px 2px; }
+  .leaderboard table { font-size: 12px; width: 100%; }
+
+  /* reduce thumbnail size and optionally hide */
+  .question-thumb.large { width: 160px; height: 110px; border-radius: 10px; }
+  body.mobile-screen .question-thumb.large { display: none; } /* hide by default on smallest screens */
+
+  /* modal and export text smaller */
+  .modal-content { padding: 12px; }
+  #qa-export-text { font-size: 12px; }
+}
+<!-- continue CSS (if any) and full HTML body + script -->
+<style>
+/* ---------------------- MOBILE VIEW LAYOUT PATCH (PatchMaster 3) ---------------------- */
+@media (max-width: 860px) {
+  .leaderboard { display: none !important; } /* hide leaderboard on mobile */
+
+  /* move scoreboard to bottom and make minimal */
+  .scoreboard {
+    position: static !important;
+    width: 100% !important;
+    margin-top: 16px;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+    padding: 6px 10px !important;
+    font-size: 13px !important;
+    overflow-x: auto;
+  }
+
+  /* REMOVED qa-random-group mobile patch */
+}
+/* ---------------------- END PATCHMASTER 3 ---------------------- */
+
+/* ---------------------- Remove header & subtitle globally ---------------------- */
+#app-title,
+#app-subtitle {
+  display: none !important; /* hide large header and subtitle for both modes */
+}
+
+/* REMOVED qa-random-group visibility CSS */
+
+/* Make question + image sit side-by-side on narrow phones so image is adjacent to question */
+@media (max-width: 420px) {
+  .question-row { flex-direction: row !important; align-items: flex-start; gap:8px !important; }
+  .question-row .flex-1 { min-width: 0; max-width: calc(100% - 140px); } /* leave room for thumbnail */
+  .question-row .question-thumb.large { display: block; width:120px;height:80px;border-radius:10px;flex-shrink:0; }
+  .question-row .question-title { padding:0.6rem !important; font-size:0.98rem !important; }
+}
+
+.video-responsive-wrapper {
+  overflow: hidden;
+  position: relative;
+  width: 100%;
+  padding-top: 56.25%; /* 16:9 Aspect Ratio */
+  margin-top: 1rem;
+  border-radius: 0.75rem;
+}
+.video-responsive-wrapper iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  width: 100%;
+  height: 100%;
+}
+</style>
+<script type="importmap">
+{
+  "imports": {
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.28.0"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+<!-- NOTE: body class changed to avoid forced vertical centering which caused the alignment issues -->
+<body class="main-bg min-h-screen p-6 flex flex-col items-center">
+<div id="app-root" class="w-full max-w-4xl">
+  <div id="app-header" class="flex items-center justify-between mb-4 flex-wrap">
+    <div style="flex:1 1 100%;text-align:center;margin-bottom:8px">
+      <h1 id="app-title" class="text-3xl font-extrabold text-pink-600">MCQ Challenge</h1>
+      <p id="app-subtitle" class="text-sm text-gray-500 mt-1 text-center" style="margin:0 auto; max-width:720px;">
+        Fun, friendly multiple choice quizzes for kids
+      </p>
+    </div>
+    <div style="flex:0 0 auto" class="text-right">
+      <div id="top-mascot" class="inline-block p-2 rounded-lg kid-card shadow-sm" style="width:64px;height:64px;display:flex;align-items:center;justify-content:center"></div>
+    </div>
+  </div>
+
+  <div id="app-container" class="flex flex-col md:flex-row md:space-x-6 space-y-4 md:space-y-0 w-full">
+    <div id="main-screen" class="kid-card p-6 flex-1 shadow-lg"><p class="text-center text-gray-500">Loading...</p></div>
+    <div id="scoreboard-container" class="scoreboard hidden" aria-live="polite"></div>
+  </div>
+
+  <div id="action-buttons-container" class="hidden mt-4"></div>
+</div>
+
+<!-- REMOVED qa-random-group HTML block from here -->
+
+<div id="modal-backdrop" class="modal-backdrop" onclick="if(event.target===this) closeModal();">
+  <div id="modal-content" class="modal-content kid-card"></div>
+</div>
+
+<script type="module">
+/* ---------------------- DATA & STATE ---------------------- */
+// NOTE: made `let` so QA import can replace it at runtime (Patch 3)
+let ALL_QUESTIONS = [
+  { id: 1, q: "Who took Lily and Max on their space trip?", options: ["Captain Star","Emma","Jake","Columbus"], a: "Captain Star", hint: "He is the captain of the spaceship!", learnMore: "", fib_sentence: "", is_fib: false, image: null, youtube: null },
+  { id: 2, q: "What gives Earth heat and light?", options: ["The Moon","The Sun","Jupiter","Venus"], a: "", hint: "It's the giant star in our solar system.", learnMore: "Sun is the source of all the light and heat as we know. Life ceased to exist without sun", fib_sentence: "", is_fib: false, image: null, youtube: null },
+  { id: 3, q: "What shape is the Sun?", options: ["Square","Flat","Round ball"], a: "Round ball", hint: "Like a giant bouncy ball.", learnMore: "", fib_sentence: "", is_fib: false, image: null, youtube: null },
+  { id: 4, q: "Fill in the blank with a verb.", options: [], a: "Playing", hint: "", learnMore: "", fib_sentence: "Arjun is __________ football.", is_fib: true, image: null, youtube: null },
+  { id: 5, q: "Fill in the blank with a adjective of quantity.", options: [], a: "Red|blue|green", hint: "", learnMore: "", fib_sentence: "I saw a __________ Car. (Any one of these is recognized as correct answer)", is_fib: true, image: null, youtube: null }
+];
+
+const MASCOTS = [
+  { name: "Unicorn", icon: "🦄", color: "text-pink-500", image: "https://placehold.co/100x100/f06292/ffffff?text=UNICORN" },
+  { name: "Panda",   icon: "🐼", color: "text-green-500", image: "https://placehold.co/100x100/66bb6a/ffffff?text=PANDA" },
+  { name: "Rocket",  icon: "🚀", color: "text-orange-500", image: "https://placehold.co/100x100/ff8c00/ffffff?text=ROCKET" },
+  { name: "Fox",     icon: "🦊", color: "text-amber-600",  image: "https://placehold.co/100x100/f59e0b/ffffff?text=FOX" },
+  { name: "Koala",   icon: "🐨", color: "text-gray-600",   image: "https://placehold.co/100x100/94a3b8/ffffff?text=KOALA" }
+];
+
+const state = {
+  screen: 'setup',
+  student: { name: '', grade: 3, mascot: MASCOTS[0] },
+  score: { correct: 0, incorrect: 0, skipped: 0 },
+  questions: [],
+  currentIndex: 0,
+  questionHistory: [],
+  wrongAnswers: [],
+  lastSessionQIDs: [],
+  timerStart: null,
+  timerInterval: null,
+  currentAnswered: false,
+  lastStageReached: 0,
+  theme: null,
+  themeIndex: 0, // <-- NEW: Track current theme index
+  format: 'Auto', // <-- CHANGED: Default format is now Auto
+  mode: 'kid'
+};
+
+/* ---------------------- HELPERS ---------------------- */
+function escapeHtml(s){ return (s||'').toString().replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function escapeJS(s){ if(typeof s!=='string') return ''; return s.replace(/'/g,"\\'").replace(/"/g,'\\"'); }
+function shuffle(arr){ for(let i=arr.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]]; } return arr; }
+function youtube_parser(url){
+    var regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
+    var match = url.match(regExp);
+    return (match&&match[7].length==11)? match[7] : false;
+}
+
+function buildKeywordCandidates(text){
+  if(!text) return [];
+  const cleaned = text.replace(/[""?!,.]/g,' ');
+  const tokens = cleaned.split(/\s+/).filter(Boolean);
+  const candidates = [];
+  for(let i=0;i<tokens.length;i++){
+    const w = tokens[i].replace(/[^a-zA-Z]/g,'' );
+    if(/^[A-Z][a-z]+$/.test(w) && i!==0){
+      const next = (tokens[i+1]||'').replace(/[^a-zA-Z]/g,'' );
+      if(/^[A-Z][a-z]+$/.test(next)) candidates.push((w+' '+next).toLowerCase());
+      candidates.push(w.toLowerCase());
+    }
+  }
+  const objRegex = /\b(?:the|a|an|has|have|has a|has the)\s+([a-z]{3,})/i;
+  const m = cleaned.match(objRegex);
+  if(m && m[1]) candidates.push(m[1].toLowerCase());
+  if(candidates.length===0) return ['space','sun','planet','rocket'];
+  return [...new Set(candidates)].slice(0,8);
+}
+
+function extractNounOrEmotionKeyword(qText){
+  if(!qText) return 'learning';
+  const base = qText.toLowerCase();
+  const words = base.match(/\b[a-z]{3,}\b/g) || [];
+  if(words.length){
+    const stop = new Set(['the','and','is','are','was','were','on','in','a','an','of','to','their','who']);
+    for(const w of words){
+      if(!stop.has(w)) return w;
+    }
+    return words[0];
+  }
+  const emotionWords = ['happy','sad','smile','run','play','think','love','explore','dream','shine'];
+  const found = emotionWords.find(e => base.includes(e));
+  return found || 'explore';
+}
+
+/**
+ * NEWLY ADDED FUNCTION
+ * Analyzes a parsed question object and returns its type.
+ * @param {object} q - The question object.
+ * @returns {string} "MCQ", "TTA", or "FIB"
+ */
+function getQuestionType(q) {
+  if (!q) return 'TTA'; // Default fallback
+  
+  // 1. Check for FIB (Fill in the Blanks)
+  // This is the most specific, identified by the parser setting `is_fib: true`
+  if (q.is_fib === true) {
+    return 'FIB';
+  }
+  
+  // 2. Check for MCQ (Multiple Choice)
+  // This is identified by having an options array with items in it.
+  if (Array.isArray(q.options) && q.options.length > 0) {
+    return 'MCQ';
+  }
+  
+  // 3. Fallback to TTA (Type the Answer)
+  // If it's not FIB and not MCQ, it must be a TTA.
+  return 'TTA';
+}
+
+/* ---------------------- PATCHED: Improved thumbnailUrlForQuestion ---------------------- */
+/* Replaced the older synchronous helper with an async-safe function that delegates
+   to the ThumbnailManager (THUMB) when available, else falls back to Unsplash or SVG.
+*/
+async function thumbnailUrlForQuestion(qText){
+  try {
+    // If the ThumbnailManager exists and is initialized, delegate to it.
+    if (typeof THUMB !== 'undefined' && THUMB && typeof THUMB.getThumbnail === 'function') {
+      // THUMB.getThumbnail may already return a promise or a direct value.
+      const result = await THUMB.getThumbnail(qText);
+      if (result) return result;
+    }
+
+    // Fallback: try a lightweight keyword-based Unsplash URL (works in most browsers)
+    const simpleKey = (typeof qText === 'string' && qText.trim().length > 0)
+      ? encodeURIComponent(qText.split(/\s+/).slice(0,3).join(' '))
+      : 'learning,kids,education';
+    // Use a size that matches THUMB defaults if present
+    const w = (THUMB && THUMB.imgWidth) ? THUMB.imgWidth : 400;
+    const h = (THUMB && THUMB.imgHeight) ? THUMB.imgHeight : 300;
+    return `https://source.unsplash.com/featured/${w}x${h}/?${simpleKey}`;
+  } catch (e) {
+    try {
+      // If THUMB is available, use its placeholder generator
+      if (typeof THUMB !== 'undefined' && THUMB && typeof THUMB._placeholderDataUrl === 'function') {
+        return THUMB._placeholderDataUrl();
+      }
+    } catch (_) {}
+    // Last-resort inline SVG placeholder data URI
+    const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='400' height='300'><rect width='100%' height='100%' fill='#ececec'/><text x='50%' y='50%' alignment-baseline='middle' text-anchor='middle' fill='#9aa0a6' font-size='18'>No Image</text></svg>`;
+    return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
+  }
+}
+
+
+/* ---------------------- ThumbnailManager (robust thumbnail subsystem) ----------------------
+   - Supports 'minimal' mode (single random image reused) and 'kid' mode (per-question images)
+   - Uses Unsplash / Picsum (and optional Pixabay) with caching, retry/backoff, prefetching
+   - Provides applyThumbnailToImgElement(imgEl, question) helper
+------------------------------------------------------------------------------------------*/
+class ThumbnailManager {
+  constructor(opts = {}) {
+    this.providers = opts.providers || ['unsplash', 'picsum']; // Removed Pixabay to simplify logic
+    this.pixabayKey = opts.pixabayKey || null;
+    this.safeSearch = opts.safeSearch !== undefined ? opts.safeSearch : true;
+    this.imgWidth = opts.imgWidth || 400;
+    this.imgHeight = opts.imgHeight || 300;
+    this.prefetchConcurrency = opts.prefetchConcurrency || 3;
+    this.requestTimeoutMs = opts.requestTimeoutMs || 6000;
+    this.retryCount = opts.retryCount || 2;
+    this.retryBackoffBase = opts.retryBackoffBase || 300;
+    this.minimalThumbUrl = null;
+    this.mode = 'kid';
+    this.cache = new Map();
+    this.inFlight = new Map();
+    this.prefetched = new Set();
+    this.rateLimitGuard = { lastCall: 0, minInterval: 150 };
+  }
+
+  setPixabayKey(key){ this.pixabayKey = key; }
+
+  async init(mode = 'kid'){
+    this.mode = mode === 'minimal' ? 'minimal' : 'kid';
+    if(this.mode === 'minimal'){
+      try { this.minimalThumbUrl = await this._fetchRandomMinimalThumb(); } catch(e){ this.minimalThumbUrl = this._placeholderDataUrl(); }
+    }
+  }
+
+  async getThumbnail(questionObjOrText){
+    const key = this._questionKey(questionObjOrText);
+    
+    // 1. Check cache
+    if(this.cache.has(key)){
+      const entry = this.cache.get(key);
+      if(entry && entry.url && !entry.error) return entry.url;
+      // If cache has an error, don't retry for 30s
+      if(entry && entry.error && Date.now() - entry.fetchedAt < 30_000) return this._placeholderDataUrl();
+    }
+    
+    // 2. Check in-flight
+    if(this.inFlight.has(key)) return this.inFlight.get(key); // Return the pending promise
+
+    // 3. Start new fetch
+    const promise = (async () => {
+      // Handle minimal mode
+      if(this.mode === 'minimal'){
+        if(this.minimalThumbUrl) return this.minimalThumbUrl;
+        try {
+          const url = await this._testImageUrl(this._tryFetchFromProvider('unsplash', 'minimal'));
+          this.minimalThumbUrl = url;
+          return url;
+        } catch (e) {
+          try {
+            // Fallback to picsum for minimal mode
+            const url = await this._testImageUrl(this._tryFetchFromProvider('picsum', 'minimal'));
+            this.minimalThumbUrl = url;
+            return url;
+          } catch (e2) {
+            this.minimalThumbUrl = this._placeholderDataUrl(); // Cache placeholder on fail
+            return this.minimalThumbUrl;
+          }
+        }
+      }
+
+      // Handle Kid mode
+      await this._rateLimitWait();
+      const candidates = this._extractKeywords(questionObjOrText);
+      
+      // Loop through each provider (unsplash, picsum)
+      for(const provider of this.providers){
+        if(provider === 'pixabay' && !this.pixabayKey) continue;
+        
+        // Loop through each keyword for that provider
+        for(const cand of candidates){
+          try {
+            // This is the line that changed:
+            const url = this._tryFetchFromProvider(provider, cand, key); // Pass the unique question key
+
+            // This new function *tests* the URL by loading it in memory
+            const validatedUrl = await this._testImageUrl(url);  
+            
+            // Success! We found a working image.
+            this.cache.set(key, { url: validatedUrl, provider, fetchedAt: Date.now(), query: cand, error: false });
+            this.inFlight.delete(key);
+            return validatedUrl;
+          } catch (e) {
+            // This specific candidate/provider failed, try the next
+            console.warn(`Failed to validate image for [${provider}, ${cand}]:`, e.message);
+          }
+        }
+      }
+
+      // All providers and candidates failed
+      throw new Error("All image providers failed to return a valid image.");
+
+    })().catch(err => {
+        // The whole process failed
+        console.error(`getThumbnail failed for key "${key}":`, err);
+        this.cache.set(key, { url: null, provider: 'error', fetchedAt: Date.now(), error: true });
+        this.inFlight.delete(key);
+        return this._placeholderDataUrl(); // Return placeholder on total failure
+    });
+
+    this.inFlight.set(key, promise);
+    return promise;
+  }
+
+  // New helper function to test an image URL by loading it in memory
+  _testImageUrl(url) {
+    if (!url) return Promise.reject(new Error("No URL provided"));
+
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      
+      // Set a timeout for the image load
+      const timeout = setTimeout(() => {
+        img.onerror = null;
+        img.onload = null;
+        img.src = ''; // Stop loading
+        reject(new Error(`Image load timed out after ${this.requestTimeoutMs}ms for url: ${url}`));
+      }, this.requestTimeoutMs);
+
+      img.onload = () => {
+        clearTimeout(timeout);
+        // Optional: check for tiny placeholder images from providers
+        if (img.width < 100 || img.height < 100) {
+            reject(new Error(`Image is too small (${img.width}x${img.height})`));
+        } else {
+            resolve(url); // Success
+        }
+      };
+      
+      img.onerror = () => {
+        clearTimeout(timeout);
+        reject(new Error(`Image failed to load (onerror event) for url: ${url}`));
+      };
+      
+      // This setting is important for Unsplash/Picsum hotlinking
+      img.crossOrigin = "anonymous";  
+      
+      img.src = url;
+    });
+  }
+
+  prefetchForQuestions(questions = [], count = 3){
+    const toPrefetch = questions.slice(0, count);
+    const limit = this.prefetchConcurrency;
+    let i = 0;
+    const runNext = async () => {
+      if(i >= toPrefetch.length) return;
+      const q = toPrefetch[i++];
+      const key = this._questionKey(q);
+      if(this.prefetched.has(key)) return runNext();
+      this.prefetched.add(key);
+      try { await this.getThumbnail(q); } catch(e) {}
+      return runNext();
+    };
+    for(let j=0;j<limit;j++) runNext();
+  }
+
+  /* ---------- internal helpers ---------- */
+  _questionKey(q){
+    if(!q) return '__null__';
+    if(typeof q === 'string') return q.trim().slice(0,200);
+    if(q.id !== undefined) return `id:${q.id}`;
+    return (q.q || q.question || JSON.stringify(q)).slice(0,200);
+  }
+  async _rateLimitWait(){
+    const now = Date.now();
+    const gap = this.rateLimitGuard.minInterval - (now - this.rateLimitGuard.lastCall);
+    if(gap > 0) await new Promise(r => setTimeout(r, gap));
+    this.rateLimitGuard.lastCall = Date.now();
+  }
+  _extractKeywords(q){
+    const text = (typeof q === 'string' ? q : (q.q || q.question || '')).toLowerCase();
+    const cleaned = text.replace(/[""?!,.—-]/g,' ');
+    const words = cleaned.split(/\s+/).filter(Boolean);
+    const commonNouns = ['sun','moon','star','planet','rocket','dog','cat','forest','river','tree','car','bike','book','teacher','school','friend','space','garden','ocean','fish','house','ball', 'map', 'globe', 'pencil', 'crayon', 'classroom', 'science', 'math', 'history', 'art'];
+    const emotionWords = ['happy','sad','angry','smile','play','run','dream','explore','surprised','scared','brave'];
+    const verbs = ['running','jumping','eating','sleeping','playing','flying','swimming','reading','building','drawing'];
+    const candidates = [];
+    for(let i=0;i<Math.max(0,words.length-1);i++){
+      const big = `${words[i]} ${words[i+1]}`;
+      if(!/\d/.test(big)) candidates.push(big);
+    }
+    for(const w of words){
+      const cw = w.replace(/[^a-z]/g,'');
+      if(cw.length >= 4 && !['which','what','when','where','who','why','how','the','and','with','from','this','that','they','there'].includes(cw)) candidates.push(cw);
+    }
+    for(const n of commonNouns) if(text.includes(n)) candidates.push(n);
+    for(const e of emotionWords) if(text.includes(e)) candidates.push(e);
+    for(const v of verbs) if(text.includes(v)) candidates.push(v);
+    const meaningful = words.find(w => w.length >= 4 && !/^(the|a|an|is|are|was|were|to|in|on)$/.test(w));
+    if(meaningful) candidates.unshift(meaningful);
+    candidates.push('learning','kids','cartoon','education','nature','space','animals');
+    return [...new Set(candidates)].slice(0,8);
+  }
+
+  // This function is now just a URL BUILDER
+  // It now accepts a `questionKey` to ensure uniqueness
+  _tryFetchFromProvider(provider, keyword, questionKey = null){
+    // Define the style prompt as an ARRAY of keywords
+    const styleKeywords = ["illustration", "drawing", "textbook", "kids", "cartoon", "cute", "vector art", "doodle", "sketch", "simplified", "educational", "for school"];
+    
+    // Get the base keyword
+    const baseKw = String(keyword).trim();
+    
+    // Create a list of all keywords
+    const allKeywords = [baseKw, ...styleKeywords];
+    
+    // Encode EACH keyword, then join with a comma.
+    // This is the critical fix.
+    const kw = allKeywords
+      .map(k => encodeURIComponent(k.trim())) // Encode each part
+      .join(','); // Join with a comma
+
+    // Create a unique seed from the question key (or keyword as fallback)
+    // This is the main fix
+    const uniqueSeed = this._hashString((questionKey || keyword) + provider + Date.now());
+
+    const sizeParam = `${this.imgWidth}x${this.imgHeight}`;
+    const builders = {
+      // Add the uniqueSeed as a 'cb' (cache-buster) parameter
+      unsplash: () => `https://source.unsplash.com/featured/${this.imgWidth}x${this.imgHeight}/?${kw}&cb=${uniqueSeed}`,
+      picsum: () => {
+        // Use the uniqueSeed for Picsum to get a different image per question
+        const seed = uniqueSeed.toString().slice(0,6);
+        return `https://picsum.photos/seed/${seed}/${this.imgWidth}/${this.imgHeight}`;
+      },
+      pixabay: () => null // Removed to simplify and fix
+    };
+    const urlBuilder = builders[provider];
+    if(!urlBuilder) return null;
+
+    // Return the URL string
+    return urlBuilder();
+  }
+
+  async _fetchRandomMinimalThumb(){
+    const picks = ['unsplash','picsum'];
+    for(const p of picks){
+      try {
+        // Use the new _testImageUrl function
+        const url = await this._testImageUrl(this._tryFetchFromProvider(p, 'minimal'));
+        if(url) return url;
+      } catch(e){}
+    }
+    return this._placeholderDataUrl();
+  }
+  async _fetchRandomFallback(){
+    try { 
+      const u = await this._testImageUrl(this._tryFetchFromProvider('picsum', `random${Date.now()}`)); 
+      if(u) return u; 
+    } catch(e){}
+    try { 
+      const u = await this._testImageUrl(this._tryFetchFromProvider('unsplash', `random${Date.now()}`)); 
+      if(u) return u; 
+    } catch(e){}
+    return this._placeholderDataUrl();
+  }
+  _placeholderDataUrl(){
+    const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='${this.imgWidth}' height='${this.imgHeight}'><rect width='100%' height='100%' fill='#ececec'/><text x='50%' y='50%' alignment-baseline='middle' text-anchor='middle' fill='#9aa0a6' font-size='20'>No Image</text></svg>`;
+    return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
+  }
+  _hashString(s){
+    let h = 2166136261 >>> 0;
+    for(let i=0;i<s.length;i++){ h ^= s.charCodeAt(i); h = Math.imul(h,16777619); }
+    return h >>> 0;
+  }
+  async _fetchWithTimeout(url, timeoutMs = 6000, retries = 1, fetchOpts = {}){ 
+    // This function is no longer used by the new `_testImageUrl` logic
+    // but we leave it in case other parts of the code use it.
+    let attempt = 0; let lastErr = null;
+    while(attempt <= retries){
+      attempt++;
+      const controller = new AbortController();
+      const id = setTimeout(()=>controller.abort(), timeoutMs);
+      try {
+        const res = await fetch(url, { ...fetchOpts, signal: controller.signal });
+        clearTimeout(id);
+        const ct = res.headers && res.headers.get ? (res.headers.get('content-type') || '') : '';
+        if(ct.includes('application/json')) return await res.json();
+        if(res.ok || res.type === 'opaque') return res;
+        throw new Error('HTTP ' + res.status);
+      } catch(err){
+        clearTimeout(id);
+        lastErr = err;
+        const backoff = this.retryBackoffBase * Math.pow(2, attempt - 1);
+        await new Promise(r => setTimeout(r, backoff));
+      }
+    }
+    throw lastErr;
+  }
+}
+
+/* single instance + helper */
+const THUMB = new ThumbnailManager({ imgWidth: 400, imgHeight: 300, requestTimeoutMs: 6000, retryCount: 2, prefetchConcurrency: 3 });
+
+// This function is now much simpler
+async function applyThumbnailToImgElement(imgEl, question){
+  if(!imgEl) return;
+
+  const placeholder = THUMB._placeholderDataUrl();
+  
+  // Set placeholder *first*
+  imgEl.src = placeholder;
+  
+  // No complex onerror needed, as getThumbnail now guarantees
+  // a working image or the placeholder.
+  imgEl.onerror = null; 
+
+  try {
+    // getThumbnail will return a *validated* URL or the placeholder
+    const url = await THUMB.getThumbnail(question);
+    
+    imgEl.src = url; // Set the final, validated URL
+    
+    if(url && url !== placeholder){
+      imgEl.srcset = `${url} ${THUMB.imgWidth}w`;
+      imgEl.width = THUMB.imgWidth;
+      imgEl.height = THUMB.imgHeight;
+      imgEl.loading = 'lazy';
+      imgEl.alt = (typeof question === 'string' ? question : (question.q || 'question image')).slice(0,120);
+    }
+  } catch(e){
+    console.error("Error in applyThumbnailToImgElement:", e);
+    imgEl.src = placeholder; // Final safety fallback
+  }
+}
+
+/* ---------------------- PERSISTENCE HELPERS ---------------------- */
+const LS_KEY = 'mcq_quiz_v1';
+
+function saveQuizStateToLocalStorage(){
+  try{
+    const payload = {
+      version: 1,
+      questionHistory: state.questionHistory || [],
+      currentIndex: state.currentIndex || 0,
+      score: state.score || { correct:0, incorrect:0, skipped:0 },
+      timerElapsedMs: state.timerStart ? (Date.now() - state.timerStart) : null,
+      savedAt: new Date().toISOString()
+    };
+    localStorage.setItem(LS_KEY, JSON.stringify(payload));
+  }catch(e){
+    console.warn('saveQuizStateToLocalStorage failed', e);
+  }
+}
+
+function loadQuizStateFromLocalStorage(){
+  try{
+    const raw = localStorage.getItem(LS_KEY);
+    if(!raw) return false;
+    const payload = JSON.parse(raw);
+    if(!payload || !Array.isArray(payload.questionHistory)) return false;
+    state.questionHistory = payload.questionHistory || [];
+    state.currentIndex = typeof payload.currentIndex === 'number' ? payload.currentIndex : 0;
+    state.score = payload.score || state.score;
+    if(typeof payload.timerElapsedMs === 'number'){
+      state.timerStart = Date.now() - payload.timerElapsedMs;
+    }
+    return true;
+  }catch(e){
+    console.warn('loadQuizStateFromLocalStorage failed', e);
+    return false;
+  }
+}
+
+function clearSavedQuizState(){
+  try{ localStorage.removeItem(LS_KEY); }catch(e){/*ignore*/ }
+}
+
+/* ---------------------- TOAST / NOTIFICATION HELPER ---------------------- */
+function showToast(message, opts = {}) {
+  try {
+    const duration = typeof opts.duration === 'number' ? opts.duration : 1800;
+    const containerId = '__mcq_toast_container';
+    let container = document.getElementById(containerId);
+    if (!container) {
+      container = document.createElement('div');
+      container.id = containerId;
+      container.style.position = 'fixed';
+      container.style.right = '18px';
+      container.style.bottom = '18px';
+      container.style.zIndex = 99999;
+      container.style.display = 'flex';
+      container.style.flexDirection = 'column';
+      container.style.gap = '8px';
+      document.body.appendChild(container);
+    }
+
+    const el = document.createElement('div');
+    el.textContent = message;
+    el.style.padding = '10px 14px';
+    el.style.borderRadius = '10px';
+    el.style.boxShadow = '0 8px 20px rgba(0,0,0,0.12)';
+    el.style.background = 'linear-gradient(180deg,#ffffff,#f3f7ff)';
+    el.style.color = '#111827';
+    el.style.fontWeight = '700';
+    el.style.maxWidth = '320px';
+    el.style.border = '1px solid rgba(16,24,40,0.06)';
+    el.style.opacity = '0';
+    el.style.transition = 'opacity 180ms ease, transform 240ms ease';
+    el.style.transform = 'translateY(8px)';
+    container.appendChild(el);
+
+    requestAnimationFrame(() => { el.style.opacity = '1'; el.style.transform = 'translateY(0)'; });
+
+    setTimeout(() => {
+      el.style.opacity = '0';
+      el.style.transform = 'translateY(8px)';
+      setTimeout(() => el.remove(), 260);
+      setTimeout(() => {
+        if (container && container.children.length === 0) container.remove();
+      }, 300);
+    }, duration);
+  } catch (e) {
+    console.warn('showToast error', e);
+  }
+}
+
+/* ---------------------- Global error handlers (debug) ---------------------- */
+window.addEventListener('error', (ev) => {
+  console.error('GLOBAL ERROR:', ev.error || ev.message || ev);
+  try {
+    const main = document.getElementById('main-screen');
+    if(main) main.innerHTML = `<div style="padding:20px;border:2px solid #fbb;background:#fff7f7;color:#900;font-weight:700">Error: ${escapeHtml(String(ev.error?.message || ev.message || 'See console'))}</div>`;
+  } catch(e){}
+});
+window.addEventListener('unhandledrejection', (ev) => {
+  console.error('UNHANDLED REJECTION:', ev.reason);
+  try {
+    const main = document.getElementById('main-screen');
+    if(main) main.innerHTML = `<div style="padding:20px;border:2px solid #fbb;background:#fff7f7;color:#900;font-weight:700">Promise rejected: ${escapeHtml(String(ev.reason?.message || ev.reason))}</div>`;
+  } catch(e){}
+});
+
+/* ---------------------- Fetcher ---------------------- */
+async function fetchAnswerForQuestion(qText){
+  try{
+    const query = encodeURIComponent(qText + ' answer');
+    const url = `https://api.duckduckgo.com/?q=${query}&format=json&no_html=1&skip_disambig=1`;
+    
+    // Add timeout to prevent hanging
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
+    
+    const resp = await fetch(url, { signal: controller.signal });
+    clearTimeout(timeoutId);
+    
+    if(!resp.ok) throw new Error(`HTTP error! status: ${resp.status}`);
+    
+    const data = await resp.json();
+    if(data && data.AbstractText && data.AbstractText.trim().length>0){
+      return data.AbstractText.split(/[.?!]/)[0].trim();
+    }
+    if(data && Array.isArray(data.RelatedTopics) && data.RelatedTopics.length>0){
+      for(const t of data.RelatedTopics){
+        if(t.Text && t.Text.trim().length>0) return t.Text.split(/[.?!]/)[0].trim();
+      }
+    }
+    return null;
+  }catch(e){
+    console.warn('fetchAnswerForQuestion error', e);
+    // Return a default answer instead of null
+    return "No answer available";
+  }
+}
+async function ensureAnswers(){
+  for(let i=0;i<ALL_QUESTIONS.length;i++){
+    const q = ALL_QUESTIONS[i];
+    if(!q.a || String(q.a).trim().length===0){
+      const found = await fetchAnswerForQuestion(q.q);
+      if(found){
+        if(q.options && q.options.length>0){
+          const match = q.options.find(opt => found.toLowerCase().includes(opt.toLowerCase()) || opt.toLowerCase().includes(found.toLowerCase()));
+          if(match){ q.a = match; q._fetched = true; continue; }
+        }
+        q.a = found;
+        q._fetched = true;
+      } else {
+        q.a = 'UNKNOWN';
+        q._fetched = false;
+      }
+      await new Promise(r=>setTimeout(r,250));
+    }
+  }
+}
+
+/* ---------------------- INITIALIZATION ---------------------- */
+async function initApp(){
+  // MODIFIED: Apply theme based on state.themeIndex
+  applyTheme();
+  const name = localStorage.getItem('studentName');
+  // adapt to device right away
+  adjustForDevice();
+  if(name){
+    state.student.name = name;
+    const savedFormat = localStorage.getItem('quizFormat');
+    if(savedFormat) state.format = savedFormat;
+    const savedMascotName = localStorage.getItem('mascotName');
+    if(savedMascotName){
+      const mascot = MASCOTS.find(m => m.name === savedMascotName);
+      if(mascot) state.student.mascot = mascot;
+    }
+    const savedMode = localStorage.getItem('uiMode');
+    const manualFlag = localStorage.getItem('uiModeManual');
+    if(manualFlag === '1' && (savedMode === 'kid' || savedMode === 'minimal')){
+      applyUIMode(savedMode);
+    }
+    // REMOVED logic for qa-random-group
+    // renderSetupScreen(); // <-- REMOVED FROM HERE
+  }
+  detectAndSetTitle();
+  renderScoreboard();
+  renderSetupScreen(); // <-- FIX: ADDED HERE, so it always runs
+}
+
+document.addEventListener('keydown', (e) => {
+  if(e.key === 'Enter'){
+    const ta = document.getElementById('typed-answer');
+    if(ta && document.activeElement === ta){
+      e.preventDefault();
+      handleTypedAnswer();
+    }
+  }
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+  (async () => {
+    try { 
+      // MODIFIED: Apply theme based on state.themeIndex
+      applyTheme(); 
+      await initApp(); 
+    } catch(e){ 
+      console.warn('init failed', e); 
+      try{ 
+        await initApp(); 
+      } catch(e2){} 
+    }
+  })();
+  
+  // Add cleanup listeners
+  window.addEventListener('beforeunload', () => {
+    stopTimer();
+  });
+  
+  try {
+    attachFloatingButtons();
+    const observer = new MutationObserver(() => { attachFloatingButtons(); });
+    observer.observe(document.body, { childList: true, subtree: true });
+    
+    // Disconnect observer when page unloads
+    window.addEventListener('beforeunload', () => {
+      observer.disconnect();
+    });
+  } catch (err) {
+    console.warn('attachFloatingButtons/init observer failed', err);
+  }
+});
+
+/* ---------------------- SETUP SCREEN / START / NAV ---------------------- */
+function renderSetupScreen(){
+  state.screen = 'setup';
+  stopTimer();
+  // Reset old progress when entering setup
+  state.score = { correct:0, incorrect:0, skipped:0 };
+  state.questionHistory = [];
+  state.wrongAnswers = [];
+  state.currentIndex = 0;
+  state.currentAnswered = false;
+  try { localStorage.removeItem('lastQIDs'); } catch(e) {}
+  try { renderScoreboard(); } catch(e) {}
+  document.getElementById('scoreboard-container').classList.add('hidden');
+  document.getElementById('action-buttons-container').classList.add('hidden');
+  // REMOVED line that showed qa-random-group
+
+  // ensure body classes reflect setup state so QA/Random are visible
+  try { document.body.classList.remove('quiz-active'); document.body.classList.remove('modal-open'); } catch(e){}
+
+  const mascotsHtml = (state.mode === 'kid') ? MASCOTS.map(m=>`
+    <button type="button" onclick="selectMascot('${m.name}')" class="p-4 rounded-full ${state.student.mascot.name===m.name?'ring-4 ring-pink-400':'bg-gray-100'}" aria-label="Pick ${m.name}">
+      <span class="text-4xl">${m.icon}</span>
+    </button>
+  `).join('') : '';
+
+  const content = `
+    <div class="text-center">
+      <h1 id="app-title-setup" class="text-4xl font-black mb-1" style="color: var(--header-text)">Welcome Student!</h1>
+      <p class="text-gray-600 mb-6">Pick your mascot and let's start the fun.</p>
+    </div>
+    <form id="setup-form" class="space-y-4">
+      <div>
+        <label class="block font-bold">Your name:</label>
+        <input id="student-name" class="w-full p-3 border-4 rounded-xl text-lg" style="border-color: var(--form-border)" placeholder="Type your name here" value="${escapeHtml(state.student.name||'')}" />
+      </div>
+      
+      <!-- START: Wrapped Interface and Settings in a flex container -->
+      <div class="flex flex-col md:flex-row md:space-x-8 space-y-4 md:space-y-0">
+        <div class="flex-1">
+          <label class="block font-bold">Interface style:</label>
+          <div class="flex gap-3">
+            <button id="kid-mode-btn" type="button" class="p-3 rounded-xl ${state.mode==='kid'?'button-primary':'button-soft'}">Kid friendly</button>
+            <button id="minimal-mode-btn" type="button" class="p-3 rounded-xl ${state.mode==='minimal'?'button-primary':'button-soft'}">Minimalistic</button>
+          </div>
+        </div>
+        
+        <!-- MOVED SETTINGS BLOCK -->
+        <div class="flex-1">
+          <label class="block font-bold">Settings:</label>
+          <div class="flex gap-3 items-center"> <!-- Use items-center -->
+            <button id="qa-btn" type="button" class="p-3 rounded-xl button-primary"><i class="fas fa-file-alt mr-2"></i> QA</button>
+            <button id="randomize-btn" type="button" class="p-3 rounded-xl button-soft"><i class="fas fa-random mr-2"></i> Randomize</button>
+            <!-- NEW THEME ROTATOR BUTTON -->
+            <button id="theme-btn" type="button" class="p-3 rounded-full button-soft" style="width: 48px; height: 48px; flex-shrink: 0;" aria-label="Change theme">
+                <i class="fas fa-palette"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+      <!-- END: Flex container -->
+      
+      <div>
+        <label class="block font-bold">Format:</label>
+        <select id="format-select" class="w-full p-3 border-4 rounded-xl" style="border-color: var(--form-border)">
+          <option value="Auto" ${state.format==='Auto'?'selected':''}>Auto (Default)</option>
+          <option value="MCQ" ${state.format==='MCQ'?'selected':''}>MCQ</option>
+          <option value="TTA" ${state.format==='TTA'?'selected':''}>Type the Answer</option>
+          <option value="FIB" ${state.format==='FIB'?'selected':''}>Fill in the Blanks</option>
+        </select>
+      </div>
+      <div class="flex justify-around mb-2">${mascotsHtml}</div>
+      <button id="start-quiz-btn" class="w-full p-4 mt-3 text-2xl rounded-xl button-primary">Let's Explore!</button>
+    </form>
+  `;
+  document.getElementById('main-screen').innerHTML = content;
+
+  // Re-apply app title text, as it might be different from "Welcome Student"
+  detectAndSetTitle(); 
+  const setupTitle = document.getElementById('app-title-setup');
+  if (setupTitle) {
+      const appTitle = document.getElementById('app-title');
+      if (appTitle && appTitle.textContent !== 'MCQ Challenge') {
+          setupTitle.textContent = appTitle.textContent;
+      } else {
+          setupTitle.textContent = 'Welcome Student!';
+      }
+  }
+
+
+  document.getElementById('start-quiz-btn').onclick = async (e) => {
+    e.preventDefault();
+    const nameInput = document.getElementById('student-name');
+    const name = (nameInput.value||'').trim();
+    
+    // Validate name input
+    if (!name) {
+      nameInput.classList.add('border-red-500');
+      showToast('Please enter your name to continue', { duration: 3000 });
+      return;
+    }
+    
+    // Remove error styling if present
+    nameInput.classList.remove('border-red-500');
+
+    const fmt = document.getElementById('format-select').value || 'MCQ';
+    state.student.name = name;
+    state.format = fmt;
+    try { localStorage.setItem('studentName', name); } catch(e){}
+    try { localStorage.setItem('quizFormat', fmt); } catch(e){}
+    await ensureAnswers();
+    startQuiz();
+  };
+
+  const kidBtn = document.getElementById('kid-mode-btn');
+  const minBtn = document.getElementById('minimal-mode-btn');
+  if(kidBtn) kidBtn.onclick = () => { applyUIMode('kid'); renderSetupScreen(); };
+  if(minBtn) minBtn.onclick = () => { applyUIMode('minimal'); renderSetupScreen(); };
+
+  // --- NEW: Wire theme button ---
+  const themeBtn = document.getElementById('theme-btn');
+  if(themeBtn) themeBtn.onclick = (e) => {
+      e.preventDefault();
+      cycleTheme(); // New function
+  };
+
+  // --- NEW: Attach other buttons (QA, Randomize) ---
+  attachFloatingButtons();
+}
+
+async function startQuiz(){
+  state.screen = 'quiz';
+  state.currentIndex = 0;
+  state.score = { correct:0, incorrect:0, skipped:0 };
+  state.wrongAnswers = [];
+  state.questionHistory = [];
+  state.questions = ALL_QUESTIONS.slice();
+  state.currentAnswered = false;
+  state.lastStageReached = 0;
+  
+  // Await the async function
+  await ensureAnswers();
+  
+  startTimer();
+  saveQuizStateToLocalStorage();
+  renderQuizScreen();
+  // mark body so CSS hides QA/Random while quiz active
+  try { document.body.classList.add('quiz-active'); } catch(e){}
+}
+
+/* ---------------------- RENDER QUIZ SCREEN ---------------------- */
+async function renderQuizScreen(){
+  // REMOVED line that hid qa-random-group
+  document.getElementById('scoreboard-container').classList.remove('hidden');
+  document.getElementById('action-buttons-container').classList.remove('hidden');
+
+  if(state.currentIndex >= state.questions.length){
+    renderEndScreen();
+    return;
+  }
+
+  const q = state.questions[state.currentIndex];
+
+  // --- NEW AUTO FORMAT LOGIC ---
+  const qType = getQuestionType(q);
+  let currentFormat = state.format;
+  if (currentFormat === 'Auto') {
+    currentFormat = qType; // Use the specific type for this question
+  }
+  // --- END NEW LOGIC ---
+
+  const hasOptions = q.options && q.options.length>0;
+  // Use currentFormat instead of state.format
+  const renderAsTyped = currentFormat === 'TTA' || currentFormat === 'FIB';
+
+  /* -------- Thumbnail logic handled asynchronously via THUMB -------- */
+  // Start with a placeholder; we'll apply the fetched thumbnail after DOM insertion
+  let thumb = THUMB._placeholderDataUrl();
+
+  // --- NEW: Question Display Logic ---
+  let questionDisplayHtml = '';
+  // Use currentFormat instead of state.format
+  if (currentFormat === 'FIB' && q.is_fib && q.fib_sentence) {
+    // FIB format: Show instruction (q.q) + sentence with blank
+    questionDisplayHtml = `
+      <h2 class="question-title p-4 bg-yellow-50 border-l-8 border-yellow-400 rounded-lg shadow-inner w-full">
+        ${escapeHtml(q.q)}
+      </h2>
+      <div class="mt-3 text-2xl font-semibold text-center p-4 bg-gray-50 rounded-lg">
+        ${escapeHtml(q.fib_sentence)}
+      </div>
+    `;
+  } else {
+    // Default format: Just show the question
+    questionDisplayHtml = `
+      <h2 class="question-title p-4 bg-yellow-50 border-l-8 border-yellow-400 rounded-lg shadow-inner w-full">
+        ${escapeHtml(q.q)}
+      </h2>
+    `;
+  }
+  // --- END: Question Display Logic ---
+
+  let optionsHtml = '';
+  if(renderAsTyped){
+    const history = state.questionHistory[state.currentIndex];
+    if(history){
+      const studentAns = history.selectedAnswer || '';
+      
+      // --- FIX: Check for multiple answers (split by |) ---
+      const correctAnswers = (q.a || '').toLowerCase().split('|').map(ans => ans.trim());
+      const studentAnswer = String(studentAns).trim().toLowerCase();
+      const isCorrect = correctAnswers.includes(studentAnswer);
+      
+      optionsHtml = `
+        <div class="p-4 rounded-xl bg-gray-50 border border-gray-200">
+          <p class="mb-2 font-semibold">Your answer:</p>
+          <div class="mb-3 p-3 rounded bg-white">${escapeHtml(String(studentAns||''))}</div>
+          <p class="${isCorrect?'text-green-700':'text-red-700'} font-semibold">${isCorrect?'Correct!':'Not correct'}</p>
+          ${!isCorrect?`<p class="mt-2 text-sm">Correct answer: <strong>${escapeHtml(String(q.a||''))}</strong></p>`:''}
+        </div>
+      `;
+    } else {
+      optionsHtml = `
+        <div class="p-4 rounded-xl bg-gray-50 border border-gray-200">
+          <label class="block mb-2 font-semibold">Answer:</label>
+          <input id="typed-answer" type="text" class="w-full p-3 border rounded-lg mb-3" placeholder="Type your answer here" />
+          <div class="flex gap-2">
+            <button id="typed-submit-btn" class="p-3 rounded-xl button-primary">Submit Answer</button>
+            <button id="typed-skip-btn" class="p-3 rounded-xl bg-indigo-500 text-white">Skip</button>
+          </div>
+        </div>
+      `;
+    }
+  } else {
+    const shuffled = shuffle((q.options||[]).slice());
+    const history = state.questionHistory[state.currentIndex];
+    optionsHtml = shuffled.map(opt=>{
+      if(history){
+        if(history.selectedAnswer === opt){
+          if(opt === q.a) return `<button class="answer-button p-4 rounded-xl correct-answer-feedback text-white cursor-not-allowed" disabled> ${escapeHtml(opt)} </button>`;
+          else return `<button class="answer-button p-4 rounded-xl wrong-answer-feedback text-white cursor-not-allowed" disabled> ${escapeHtml(opt)} </button>`;
+        } else if(opt === q.a){
+          return `<button class="answer-button p-4 rounded-xl correct-answer-feedback text-white cursor-not-allowed">${escapeHtml(opt)}</button>`;
+        } else {
+          return `<button class="answer-button p-4 rounded-xl bg-gray-100 text-gray-600 cursor-not-allowed" disabled>${escapeHtml(opt)}</button>`;
+        }
+      } else {
+        return `<button onclick="handleAnswer('${escapeJS(opt)}', this)" class="answer-button p-4 rounded-xl">${escapeHtml(opt)}</button>`;
+      }
+    }).join('');
+  }
+
+  const content = `
+    <div class="relative">
+      <div class="mb-3 text-center">
+        <div class="question-count">Question ${state.currentIndex+1} of ${state.questions.length}</div>
+        <div class="topic-line">Topic: ${escapeHtml(document.getElementById('app-title').textContent || '')}</div>
+      </div>
+
+      <!-- Thumbnail: now dynamically managed by ThumbnailManager -->
+      <div class="mb-4 flex flex-col md:flex-row items-start gap-4 question-row">
+        <div class="flex-1">
+          <!-- NEW: Replaced h2 with dynamic questionDisplayHtml -->
+          ${questionDisplayHtml}
+        </div>
+        <div class="w-full md:w-48 flex-shrink-0 flex items-center justify-center">
+          <img id="question-thumb" class="question-thumb large" src="${thumb}" alt="thumb" />
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 gap-4">${optionsHtml}</div>
+    </div>
+  `;
+  document.getElementById('main-screen').innerHTML = content;
+
+  // Apply actual fetched thumbnail (asynchronous) and prefetch next ones
+  (async () => {
+    try {
+      const imgEl = document.getElementById('question-thumb');
+      if (imgEl) {
+        await applyThumbnailToImgElement(imgEl, q);
+        THUMB.prefetchForQuestions(state.questions.slice(state.currentIndex + 1), 2);
+      }
+    } catch (e) {
+      console.warn('Thumbnail apply failed:', e);
+      // Show a toast notification to the user
+      showToast('Image loading failed. Using placeholder instead.', { duration: 3000 });
+    }
+  })();
+
+  // Keep minimal image visible if in minimalist mode
+  if(state.mode === 'minimal'){
+    const thumbEl = document.getElementById('question-thumb');
+    if(thumbEl) thumbEl.style.display = 'block';
+  }
+  try{ if(window.innerWidth <= 420) document.body.classList.add('mobile-screen'); }catch(e){}
+
+  if(renderAsTyped && !state.questionHistory[state.currentIndex]){
+    setTimeout(()=>{
+      const submit = document.getElementById('typed-submit-btn');
+      const skip = document.getElementById('typed-skip-btn');
+      if(submit) submit.onclick = () => window.handleTypedAnswer();
+      if(skip) skip.onclick = () => window.skipQuestion();
+      const ta = document.getElementById('typed-answer');
+      if(ta) ta.focus();
+    },60);
+  }
+
+  renderScoreboard();
+  renderActionButtons(!!state.questionHistory[state.currentIndex]);
+  checkAndPlayStageAnimation();
+}
+
+/* ---------------------- ACTION BUTTONS ---------------------- */
+function renderActionButtons(isAnswered){
+  const container = document.getElementById('action-buttons-container');
+  const total = state.questions.length;
+  const idx = state.currentIndex;
+  const q = state.questions[idx]; // <-- Get current question
+  const canGoPrevious = idx > 0;
+  const nextDisabled = !state.currentAnswered;
+  container.classList.remove('hidden');
+
+  const hintClass = isAnswered ? 'bg-gray-300 text-gray-700 cursor-not-allowed' : 'button-primary';
+  const skipClass = isAnswered ? 'bg-gray-300 text-gray-700 cursor-not-allowed' : 'bg-indigo-500 text-white';
+  const hintAttr = isAnswered ? 'disabled' : '';
+  const skipAttr = isAnswered ? 'disabled' : '';
+
+  // --- NEW "KNOW MORE" LOGIC ---
+  const hasLearnMore = q && (q.learnMore || q.image || q.youtube);
+  const learnMoreClass = hasLearnMore ? 'bg-purple-500 text-white' : 'bg-gray-300 text-gray-700 cursor-not-allowed';
+  const learnMoreAttr = !hasLearnMore ? 'disabled' : '';
+  // --- END NEW LOGIC ---
+
+  container.innerHTML = `
+    <div class="grid grid-cols-3 md:grid-cols-6 gap-2"> <!-- CHANGED: grid-cols-2 to 3, md:grid-cols-5 to 6 -->
+      <button onclick="previousQuestion()" class="w-full p-3 rounded-xl ${canGoPrevious?'button-soft':'bg-gray-300 cursor-not-allowed'}" ${!canGoPrevious?'disabled':''}>⏪ Previous</button>
+      <button id="hint-btn" onclick="showHint()" class="w-full p-3 rounded-xl ${hintClass}" ${hintAttr}>💡 Hint</button>
+      
+      <!-- NEW BUTTON -->
+      <button id="learn-more-btn" onclick="showLearnMore()" class="w-full p-3 rounded-xl ${learnMoreClass}" ${learnMoreAttr}>ℹ️ Know More</button>
+
+      <button id="skip-btn" onclick="skipQuestion()" class="w-full p-3 rounded-xl ${skipClass}" ${skipAttr}>⏭️ Skip</button>
+      <button id="review-btn-mini" onclick="showWrongLog()" class="w-full p-3 rounded-xl bg-red-400 text-white ${state.wrongAnswers.length>0?'':'hidden'}">Oops! (${state.wrongAnswers.length})</button>
+      <button id="next-btn" onclick="nextQuestion()" class="w-full p-3 rounded-xl ${nextDisabled?'bg-gray-300 text-gray-700 cursor-not-allowed':'bg-green-500 text-white'}" ${nextDisabled?'disabled':''}>${idx===total-1?'Finish!':'Next ➡️'}</button>
+    </div>
+  `;
+}
+
+/* ---------------------- ANSWER HANDLING ---------------------- */
+window.handleAnswer = (selectedOption, buttonElement) => {
+  if (state.currentAnswered) return;
+  const q = state.questions[state.currentIndex];
+  const optionButtons = Array.from(document.querySelectorAll('.answer-button'));
+  optionButtons.forEach(btn => { btn.disabled = true; });
+  state.currentAnswered = true;
+  enableNextButton();
+  const isCorrect = selectedOption === q.a;
+
+  if(isCorrect){
+    buttonElement.classList.add('correct-answer-feedback');
+    try { showThumbsAnimation(1000); } catch(e){}
+    state.score.correct++;
+    showMilestoneIfAny();
+  } else {
+    buttonElement.classList.add('wrong-answer-feedback');
+    state.score.incorrect++;
+    if (!state.wrongAnswers.some(w=>w.id===q.id)){
+      state.wrongAnswers.push({ q:q.q, a:q.a, id:q.id });
+    }
+    const correctBtn = optionButtons.find(b=>b.textContent.trim()===q.a);
+    if(correctBtn) correctBtn.classList.add('correct-answer-feedback');
+  }
+
+  state.questionHistory[state.currentIndex] = { ...q, selectedAnswer:selectedOption };
+  renderScoreboard();
+  saveQuizStateToLocalStorage();
+};
+
+window.handleTypedAnswer = () => {
+  if (state.currentAnswered) return;
+  const input = document.getElementById('typed-answer');
+  if (!input) return;
+  const val = String(input.value || '').trim();
+  if (!val) { input.classList.add('border-red-400'); setTimeout(()=>input.classList.remove('border-red-400'), 800); return; }
+  const q = state.questions[state.currentIndex];
+  state.currentAnswered = true;
+  enableNextButton();
+
+  // --- FIX: Check for multiple answers (split by |) ---
+  const correctAnswers = (q.a || '').toLowerCase().split('|').map(ans => ans.trim());
+  const studentAnswer = val.toLowerCase().trim();
+  const isCorrect = correctAnswers.includes(studentAnswer);
+  
+  if (isCorrect) {
+    state.score.correct++;
+    showMilestoneIfAny();
+  } else {
+    state.score.incorrect++;
+    if (!state.wrongAnswers.some(w=>w.id===q.id)) state.wrongAnswers.push({ q:q.q, a:q.a, id:q.id });
+  }
+  state.questionHistory[state.currentIndex] = { ...q, selectedAnswer: val };
+  renderQuizScreen();
+  saveQuizStateToLocalStorage();
+};
+
+window.skipQuestion = () => {
+  if (state.currentAnswered) return;
+  const q = state.questions[state.currentIndex];
+  state.questionHistory[state.currentIndex] = { ...q, selectedAnswer: 'SKIPPED' };
+  state.score.skipped++;
+  state.currentAnswered = true;
+  enableNextButton();
+  renderScoreboard();
+  document.querySelectorAll('.answer-button').forEach(b => b.disabled = true);
+  const ta = document.getElementById('typed-answer');
+  if (ta) ta.disabled = true;
+  saveQuizStateToLocalStorage();
+};
+
+function enableNextButton(){
+  const nextBtn = document.getElementById('next-btn');
+  if(nextBtn){
+    nextBtn.disabled = false;
+    nextBtn.classList.remove('bg-gray-300','text-gray-700','cursor-not-allowed');
+    nextBtn.classList.add('bg-green-500','text-white');
+  }
+}
+
+/* ---------------------- NAVIGATION ---------------------- */
+window.nextQuestion = () => {
+  if (!state.currentAnswered) return;
+  if (state.currentIndex < state.questions.length - 1) {
+    state.currentIndex++;
+    state.currentAnswered = !!state.questionHistory[state.currentIndex];
+    renderQuizScreen();
+    saveQuizStateToLocalStorage();
+  } else {
+    state.currentIndex = state.questions.length;
+    renderQuizScreen();
+  }
+};
+window.previousQuestion = () => {
+  if (state.currentIndex > 0) {
+    state.currentIndex--;
+    state.currentAnswered = !!state.questionHistory[state.currentIndex];
+    renderQuizScreen();
+    saveQuizStateToLocalStorage();
+  }
+};
+
+/* ---------------------- SCOREBOARD (merged) ---------------------- */
+function renderScoreboard(){
+  const mascot = state.student.mascot || { icon: '🦄' };
+  const elapsed = getElapsedTime();
+  const totalQ = state.questions.length || Math.max(1, ALL_QUESTIONS.length);
+  const correct = state.score.correct || 0;
+  const wrong = state.score.incorrect || 0;
+  const skip = state.score.skipped || 0;
+  
+  /* RE-APPLYING CHANGE: Logic to hide mascot on setup screen added back. */
+  
+  // On setup/home screen show a dash instead of numeric progress
+  const idxText = (state.screen === 'setup') ? '-' : `${Math.min(state.currentIndex+1,totalQ)} / ${totalQ}`;
+
+  // Helper: display dash for zero/empty counters to match desired UI
+  const displayOrDash = (v) => {
+    if (typeof v === 'number') return (v > 0 ? String(v) : '-');
+    if (!v) return '-';
+    return String(v);
+  };
+
+  const sbHtml = `
+    <div class="sb-header" role="note" aria-label="player info">
+      <div class="sb-mascot">${state.mode === 'minimal' ? '' : escapeHtml(mascot.icon)}</div>
+      <div class="sb-name">${escapeHtml(state.student.name || 'Student')}</div>
+    </div>
+
+    <div class="sb-icons" role="list" aria-label="score tiles">
+      <div class="sb-tile" role="listitem" title="Correct answers">
+        <div class="icon" aria-hidden="true">👍</div>
+        <div class="value">${displayOrDash(correct)}</div>
+        <div class="label">Correct</div>
+      </div>
+
+      <div class="sb-tile" role="listitem" title="Wrong answers">
+        <div class="icon" aria-hidden="true">👎</div>
+        <div class="value">${displayOrDash(wrong)}</div>
+        <div class="label">Wrong</div>
+      </div>
+
+      <div class="sb-tile" role="listitem" title="Skipped questions">
+        <div class="icon" aria-hidden="true">⏩</div>
+        <div class="value">${displayOrDash(skip)}</div>
+        <div class="label">Skipped</div>
+      </div>
+
+      <div class="sb-tile progress" role="listitem" title="Progress">
+        <div class="icon" aria-hidden="true">📊</div>
+        <div class="value">${idxText}</div>
+        <div class="label">Progress</div>
+      </div>
+    </div>
+
+    <div class="sb-timer" aria-live="polite">⏳ <span class="sb-time">${elapsed}</span></div>
+  `;
+
+
+/* ------------------ DYNAMIC TITLE / AI TITLE EXTRACTION ------------------ */
+function detectAndSetTitle(rawText){
+  if (!rawText || typeof rawText !== 'string') return false;
+  const t = rawText.replace(/\r/g,'\n').replace(/\t/g,' ').trim();
+
+  const explicit = (t.match(/^(?:Topic|topic|\[Topic\]|\[topic\])[:\s-]*([^\n\r]+)/m) ||
+                   t.match(/^\[Topic\]\s*[:\-]?\s*([^\n]+)/im));
+  if (explicit && explicit[1]) {
+    const title = explicit[1].trim();
+    applyAppTitle(title);
+    return true;
+  }
+
+  const lines = t.split(/\n+/).map(s=>s.trim()).filter(Boolean).slice(0,5);
+  for (const ln of lines){
+    if (/quiz|exam|history|physics|math|science|explorer|geography|spelling|vocabulary|fractions/i.test(ln)){
+      applyAppTitle(ln.replace(/^Topic[:\-\s]*/i,'').replace(/\s+$/, ''));
+      return true;
+    }
+  }
+
+  const subjectMap = {
+    physics: ['physics','newton','velocity','force','acceleration'],
+    history: ['history','explorer','columbus','magellan'],
+    math: ['math','fraction','multiply','divide','addition','subtraction'],
+    geography: ['map','country','capital','continent'],
+    english: ['vocabulary','grammar','spelling','sentence'],
+  };
+  const lowered = t.toLowerCase();
+  for (const [label,words] of Object.entries(subjectMap)){
+    if (words.some(w=>lowered.includes(w))) {
+      applyAppTitle(capitalizeFirst(label) + ' Quiz');
+      return true;
+    }
+  }
+
+  const firstSent = lines.length ? lines[0] : '';
+  if (firstSent) {
+    const short = firstSent.replace(/^Question\s*\d+[:\.)\s]*/i,'').slice(0,40);
+    applyAppTitle(short || 'Student');
+    return true;
+  }
+
+  return false;
+}
+
+function applyAppTitle(title){
+  const safe = escapeHtml(String(title || 'Student')).replace(/\s+$/,'');
+  const h1 = document.querySelector('#main-screen h1');
+  if (h1) h1.textContent = `Welcome, ${safe.replace(/\!+$/,'')}`;
+  const titleEl = document.getElementById('quiz-title');
+  if (titleEl) titleEl.textContent = safe;
+  if (!state.student.name) {
+    state.student.name = safe.split(/[\|:\-]/)[0] || 'Student';
+    renderScoreboard();
+  }
+}
+
+function capitalizeFirst(s){ return s.charAt(0).toUpperCase() + s.slice(1); }
+
+
+/* ---------------------- QA PARSER & VALIDATION ---------------------- */
+function parseQAContent(rawText){
+  if (!rawText || typeof rawText !== 'string') return [];
+  const normalized = rawText.replace(/\r/g,'\n').replace(/\t/g,' ').trim();
+  const questions = [];
+  const qHeadRe = /^(?:\[Question\]|Question\s*\d+|Q\s*\d+|^\d+\s*[\)\.]|^\[Q\])[:\s-]*/i;
+  const optionLineRe = /^(?:\(|\[)?\s*([A-Za-z0-9])\s*[\)\.]\s*(.+)$/;
+  const answerRe = /\[Answer\]\s*[:\-]?\s*(?:Answer:)?\s*(.+)/i;
+  const hintRe = /\[Hint\]\s*[:\-]?\s*(?:Hint:)?\s*(.+)/i;
+
+  const lines = normalized.split(/\n/);
+  let i=0;
+  while (i < lines.length) {
+    let line = lines[i].trim();
+    if (qHeadRe.test(line)) {
+      const blockLines = [];
+      blockLines.push(line);
+      i++;
+      while (i < lines.length && !qHeadRe.test(lines[i])) {
+        blockLines.push(lines[i]);
+        i++;
+      }
+      const block = blockLines.join('\n').trim();
+      const qObj = extractQuestionFromBlock(block);
+      if (qObj && isValidQuestion(qObj)) questions.push(qObj);
+      continue;
+    }
+    i++;
+  }
+
+  if (questions.length === 0) {
+    const rawMatches = normalized.split(/\[Question\]/i).map(s=>s.trim()).filter(Boolean);
+    rawMatches.forEach(chunk => {
+      const qObj = extractQuestionFromBlock(chunk);
+      if (qObj && isValidQuestion(qObj)) questions.push(qObj);
+    });
+  }
+
+  questions.forEach(q => {
+    if (q.answer && typeof q.answer === 'string') {
+      const a = q.answer.trim();
+      const m = a.match(/^([A-Za-z0-9])/);
+      if (m) {
+        const token = m[1].toLowerCase();
+        const idx = q.options.findIndex(opt => {
+          const labelMatch = opt.match(/^\s*([A-Za-z0-9])[\)\.\-]\s*(.+)$/);
+          return labelMatch && labelMatch[1].toLowerCase() === token;
+        });
+        if (idx >= 0) q.answerIndex = idx;
+      }
+    }
+  });
+
+  state.questions = questions;
+  state.currentIndex = 0;
+  return questions;
+}
+
+function extractQuestionFromBlock(block){
+  if (!block) return null;
+  const lines = block.split(/\n/).map(s=>s.trim()).filter(Boolean);
+  let text = '', opts=[], answer=null, hint=null, img=null;
+  const first = lines[0].replace(/^(?:\[Question\]|Question\s*\d+|Q\s*\d+|^\d+\s*[\)\.]|^\[Q\])[:\s-]*/i,'').trim();
+  text = first;
+
+  for (let li=1; li<lines.length; li++){
+    const ln = lines[li];
+    const mOpt = ln.match(/^(?:\(|\[)?\s*([A-Za-z0-9])\s*[\)\.]\s*(.+)$/);
+    if (mOpt) { opts.push(ln); continue; }
+    const mAns = ln.match(/\[Answer\]\s*[:\-]?\s*(?:Answer:)?\s*(.+)/i);
+    if (mAns) { answer = mAns[1].trim(); continue; }
+    const mHint = ln.match(/\[Hint\]\s*[:\-]?\s*(?:Hint:)?\s*(.+)/i);
+    if (mHint) { hint = mHint[1].trim(); continue; }
+    const imgMatch = ln.match(/\b(img|image)[:=]\s*(\S+)/i) || ln.match(/!\[.*\]\(([^)]+)\)/);
+    if (imgMatch) { img = imgMatch[1] || imgMatch[2]; continue; }
+    text += ' ' + ln;
+  }
+  return { text: text.trim(), options: opts, answer, hint, image: img };
+}
+
+function isValidQuestion(q){
+  if (!q || !q.text) return false;
+  const hasText = (typeof q.text === 'string' && q.text.replace(/[^a-zA-Z0-9]/g,'').length > 2);
+  const hasOption = Array.isArray(q.options) && q.options.length >= 2;
+  const hasAnswer = !!q.answer;
+  if (/^\.{2,}$|^\d+\)\s*\.\.\.|^\.{2,}$/.test(q.text)) return false;
+  return hasText && (hasOption || hasAnswer);
+}
+
+
+/* ---------------------- MISSING UTILITIES & EVENT HANDLERS ---------------------- */
+function getMuscatNow(){
+  try {
+    const now = new Date();
+    const utc = now.getTime() + (now.getTimezoneOffset()*60000);
+    return new Date(utc + (4*60*60*1000));
+  } catch(e){ return new Date(); }
+}
+
+function shouldDefaultToMinimalByTime(){
+  try {
+    const muscat = getMuscatNow();
+    const hour = muscat.getUTCHours();
+    return (hour >= 20 || hour < 6);
+  } catch(e){ return false; }
+}
+
+// --- MODIFIED: This function is now applyTheme() ---
+// function pickRandomTheme(){
+//   const themes = ['kid','minimal','classic','ocean','sunset'];
+//   return themes[Math.floor(Math.random()*themes.length)];
+// }
+
+function escapeHtml(unsafe){
+  if (unsafe === null || unsafe === undefined) return '';
+  return String(unsafe)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+function wireEventHandlers(){
+  try {
+    const startBtn = document.getElementById('start-quiz-btn');
+    if (startBtn && !startBtn._wired) {
+      startBtn.addEventListener('click', () => {
+        if (!state.questions || state.questions.length === 0) {
+          alert('No questions loaded. Please load a question set first.');
+          return;
+        }
+        state.screen = 'quiz';
+        state.currentIndex = 0;
+        renderScoreboard();
+        renderQuiz();
+        startTimer();
+      });
+      startBtn._wired = true;
+    }
+
+    const loadQa = document.getElementById('load-qa-btn');
+    if (loadQa && !loadQa._wired){
+      loadQa.addEventListener('click', async () => {
+        const raw = prompt('Paste questions and answers here (or load file):');
+        if (!raw) return;
+        const qs = parseQAContent(raw);
+        detectAndSetTitle(raw);
+        if (!qs || qs.length === 0) {
+          alert('No valid questions found. Please check format.');
+          return;
+        }
+        state.questions = qs;
+        state.currentIndex = 0;
+        renderScoreboard();
+        renderSetupScreen();
+      });
+      loadQa._wired = true;
+    }
+
+    const prevBtn = document.getElementById('prev-btn');
+    if (prevBtn && !prevBtn._wired){
+      prevBtn.addEventListener('click', () => {
+        if (state.currentIndex > 0) state.currentIndex--;
+        renderQuiz();
+        renderScoreboard();
+      });
+      prevBtn._wired = true;
+    }
+
+    const nextBtn = document.getElementById('next-btn');
+    if (nextBtn && !nextBtn._wired){
+      nextBtn.addEventListener('click', () => {
+        if (state.currentIndex < state.questions.length - 1) state.currentIndex++;
+        renderQuiz();
+        renderScoreboard();
+      });
+      nextBtn._wired = true;
+    }
+
+    const randomizeBtn = document.getElementById('randomize-btn');
+    if (randomizeBtn && !randomizeBtn._wired){
+      randomizeBtn.addEventListener('click', () => {
+        if (!state.questions) return;
+        for (let i = state.questions.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [state.questions[i], state.questions[j]] = [state.questions[j], state.questions[i]];
+        }
+        state.currentIndex = 0;
+        renderQuiz();
+        renderScoreboard();
+      });
+      randomizeBtn._wired = true;
+    }
+
+    const qaBtn = document.getElementById('qa-open-btn');
+    if (qaBtn && !qaBtn._wired) {
+      qaBtn.addEventListener('click', () => {
+        const modal = document.getElementById('qa-modal');
+        if (modal && typeof modal.show === 'function') modal.show();
+      });
+      qaBtn._wired = true;
+    }
+
+  } catch(e){
+    console.warn('wireEventHandlers error', e);
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  wireEventHandlers();
+  if (shouldDefaultToMinimalByTime()) state.mode = 'minimal';
+});
+
+  const container = document.getElementById('scoreboard-container');
+  if(!container) return;
+  container.innerHTML = sbHtml;
+  container.classList.remove('hidden');
+  if(window.innerWidth <= 900) container.classList.add('compact'); else container.classList.remove('compact');
+
+  /* MODIFIED: Permanently hide the top-left mascot icon as requested */
+  const topMascot = document.getElementById('top-mascot');
+  if (topMascot) {
+    topMascot.style.display = 'none';
+    topMascot.innerHTML = ''; 
+  }
+
+  renderLeaderboard(container);
+
+  // REMOVED logic that moved qa-random-group on mobile
+}
+
+/* ---------------------- TIMER ---------------------- */
+function startTimer(keepExisting = false){
+  stopTimer();
+  if(!keepExisting || !state.timerStart){
+    state.timerStart = Date.now();
+  }
+  state.timerInterval = setInterval(()=>renderScoreboard(),1000);
+}
+function stopTimer(){ if(state.timerInterval){clearInterval(state.timerInterval); state.timerInterval=null;} }
+function getElapsedTime(){
+  if(!state.timerStart) return '00:00';
+  const diff = Math.max(0,Date.now()-state.timerStart);
+  const min = Math.floor(diff/60000);
+  const sec = Math.floor((diff/1000)%60);
+  return `${String(min).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
+}
+
+/* ---------------------- STAGE ANIMATIONS / MILESTONES ---------------------- */
+function checkAndPlayStageAnimation(){
+  const total = state.questions.length || 1;
+  const progress = Math.round(((state.currentIndex)/total)*100);
+  const thresholds = [25,50,75,100];
+  for(const t of thresholds){
+    if(progress >= t && state.lastStageReached < t){
+      state.lastStageReached = t;
+      playStageAnimation(t);
+      break;
+    }
+  }
+}
+function playStageAnimation(t){
+  const main = document.getElementById('main-screen');
+  main.classList.add('stage-pop');
+  const sparkle = document.createElement('div');
+  sparkle.className='sparkle';
+  sparkle.textContent='✨';
+  main.appendChild(sparkle);
+  setTimeout(()=>{main.classList.remove('stage-pop'); sparkle.remove();},900);
+  if(t===50||t===100){
+    showModal(`<div class='text-center p-3'><h3 class='text-2xl font-black text-pink-600 mb-2'>Nice! ${t}% Completed</h3><p class='text-gray-700'>Keep going — you're doing great!</p></div>`,'Yay!');
+  }
+}
+function showMilestoneIfAny(){
+  const correct = state.score.correct;
+  if(correct>0 && correct%5===0){
+    showModal(`<div class='text-center'><h3 class='text-xl font-black'>Yay! ${correct} correct!</h3></div>`,'Cool!');
+  }
+}
+
+/* ---------------------- HINT / REVIEW / END SCREEN ---------------------- */
+function showHint(){
+  const q = state.questions[state.currentIndex];
+  const hint = q && q.hint ? q.hint : "Try thinking about what the question is asking.";
+  showModal(`<div class="text-center">
+    <span style="font-size:48px;display:block;margin-bottom:8px">💡</span>
+    <h3 class="text-2xl font-black mb-2">Hint</h3>
+    <p class="text-lg text-gray-700">${escapeHtml(hint)}</p>
+  </div>`,'Thanks!');
+}
+
+function showLearnMore() {
+  const q = state.questions[state.currentIndex];
+
+  // This part runs in all cases (whether it was just answered or already answered)
+  const learnMoreText = q && q.learnMore ? q.learnMore : "No extra details available for this question.";
+  const imageUrl = q && q.image ? q.image : null;
+  const youtubeUrl = q && q.youtube ? q.youtube : null;
+  const youtubeId = youtubeUrl ? youtube_parser(youtubeUrl) : null;
+
+  let imageHtml = '';
+  if (imageUrl) {
+    imageHtml = `<img src="${escapeHtml(imageUrl)}" alt="Know more illustration" class="mt-4 rounded-lg shadow-md w-full max-w-sm mx-auto">`;
+  }
+
+  let youtubeHtml = '';
+  if (youtubeId) {
+    youtubeHtml = `
+      <div class="video-responsive-wrapper">
+        <iframe
+          src="https://www.youtube.com/embed/${escapeHtml(youtubeId)}"
+          frameborder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen
+          title="Embedded YouTube video"
+        ></iframe>
+      </div>`;
+  }
+  
+  const contentHtml = `
+    <div class="text-left">
+      <h3 class="text-2xl font-black mb-3 text-purple-600 flex items-center gap-2">
+        <span style="font-size:28px">ℹ️</span> Know More
+      </h3>
+      <p class="text-lg text-gray-700" style="white-space: pre-wrap;">${escapeHtml(learnMoreText)}</p>
+      ${imageHtml}
+      ${youtubeHtml}
+    </div>`;
+
+  showModal(contentHtml, 'Got it!');
+
+   if (!state.currentAnswered) {
+    state.currentAnswered = true;
+    state.score.incorrect++;
+    if (!state.wrongAnswers.some(w=>w.id===q.id)){
+      state.wrongAnswers.push({ q:q.q, a:q.a, id:q.id });
+    }
+    state.questionHistory[state.currentIndex] = { ...q, selectedAnswer: 'KNOW_MORE_CLICK' };
+    enableNextButton();
+    renderScoreboard();
+    saveQuizStateToLocalStorage();
+    renderQuizScreen();
+  }
+}
+
+function showWrongLog(){
+  const items = state.wrongAnswers.length ? state.wrongAnswers.map(wa => `
+    <div style="padding:8px;border-bottom:1px solid #fde2e2">
+      <div style="font-weight:700">${escapeHtml(wa.q)}</div>
+      <div style="color:#059669;margin-top:6px">Correct Answer: <strong>${escapeHtml(wa.a)}</strong></div>
+    </div>
+  `).join('') : `<p class="text-gray-500">No wrong answers yet — great job!</p>`;
+
+  showModal(`<div>
+    <h3 class="text-2xl font-black text-pink-600 mb-3">Oops! Review</h3>
+    <div style="max-height:240px;overflow:auto;border:1px solid #fee2e2;padding:8px;border-radius:8px;background:#fff7f7">${items}</div>
+  </div>`,'Close');
+}
+
+function renderEndScreen(){
+  stopTimer();
+  document.getElementById('scoreboard-container').classList.add('hidden');
+  document.getElementById('action-buttons-container').classList.add('hidden');
+
+  const total = state.questions.length || 1;
+  const correct = state.score.correct || 0;
+  const percentage = Math.round((correct/total)*100);
+  let message = "Fantastic job, you completed the quiz!";
+  if(percentage >= 80) message = "You're a quiz genius!";
+  else if(percentage >= 50) message = "Great work — keep practicing!";
+  else message = "Good effort — keep trying!";
+
+  const wrongButton = state.wrongAnswers.length > 0 ? `<button onclick="showWrongLog()" class="w-full p-3 mt-3 bg-red-500 text-white rounded-xl">Review My ${state.wrongAnswers.length} Oops</button>` : '';
+
+  const content = `
+    <div class="text-center p-6">
+      <div style="font-size:72px;margin-bottom:12px">${state.student.mascot.icon}</div>
+      <h1 class="text-3xl font-black text-pink-600 mb-2">${escapeHtml(message)}</h1>
+      <p class="text-lg text-gray-700 mb-4">Score: ${correct} / ${total} (${percentage}%)</p>
+
+      <div class="kid-card p-4 bg-white border-4 border-blue-100 inline-block mb-4">
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;font-weight:800;text-align:center">
+          <div style="padding:8px;background:#ecfdf5;border-radius:8px;color:#065f46">✔ ${state.score.correct}</div>
+          <div style="padding:8px;background:#fff1f2;border-radius:8px;color:#9f1239">✖ ${state.score.incorrect}</div>
+          <div style="padding:8px;background:#eff6ff;border-radius:8px;color:#1e3a8a">⤴ ${state.score.skipped}</div>
+        </div>
+      </div>
+      <div>
+        <button onclick="renderSetupScreen()" class="w-full p-4 mt-2 text-2xl rounded-xl button-primary">Play Again!</button>
+        ${wrongButton}
+      </div>
+    </div>
+  `;
+  document.getElementById('main-screen').innerHTML = content;
+
+  saveToLeaderboard();
+  clearSavedQuizState();
+}
+
+/* ---------------------- MODAL UTILITIES ---------------------- */
+function showModal(contentHTML, closeText='Got it!'){
+  const backdrop = document.getElementById('modal-backdrop');
+  const modal = document.getElementById('modal-content');
+  modal.innerHTML = contentHTML + (closeText ? `<div style="text-align:center;margin-top:12px"><button onclick="closeModal()" class="button-primary p-3 rounded">${escapeHtml(closeText)}</button></div>` : '' );
+  backdrop.style.display = 'flex';
+  backdrop.classList.add('show');
+  try { document.body.classList.add('modal-open'); } catch(e){}
+}
+
+function closeModal(){
+  const backdrop = document.getElementById('modal-backdrop');
+  if (!backdrop) return;
+  backdrop.classList.remove('show');
+  setTimeout(() => {
+    backdrop.style.display = 'none';
+    const modal = document.getElementById('modal-content');
+    if (modal) modal.innerHTML = '';
+    try { document.body.classList.remove('modal-open'); } catch(e){}
+  }, 120);
+}
+
+/* ---------------------- QA Export Modal (patched with Import) ---------------------- */
+function openQAExportWindow() {
+  // Password modal content (masked input)
+  const pwModalHtml = `
+    <div style="width:360px;max-width:92vw;">
+      <h3 class="text-xl font-black text-pink-600 mb-2 text-center">Enter Admin Password</h3>
+      <p class="text-sm text-gray-600 mb-3 text-center">Enter the password to open the QA editor.</p>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <input id="qa-pw-input" type="password" placeholder="Password"
+               style="width:100%;padding:10px;border:1px solid #e5e7eb;border-radius:8px;font-size:15px" />
+        <div style="display:flex;gap:8px;justify-content:center;margin-top:6px">
+          <button id="qa-pw-ok" class="p-2 rounded-xl bg-green-500 text-white font-bold" style="min-width:100px">OK</button>
+          <button id="qa-pw-cancel" class="p-2 rounded-xl button-primary" style="min-width:100px">Cancel</button>
+        </div>
+        <div id="qa-pw-msg" style="color:#ef4444;font-weight:700;text-align:center;display:none;margin-top:6px;font-size:13px"></div>
+      </div>
+    </div>
+  `;
+
+  // Show password modal using existing helper (keeps modal/backdrop consistent)
+  showModal(pwModalHtml, null);
+
+  // Focus input shortly after modal shown
+  setTimeout(() => {
+    const ip = document.getElementById('qa-pw-input');
+    if (ip) ip.focus();
+  }, 60);
+
+  // Wire buttons (note: they exist inside modal-content now)
+  const cancelBtn = document.getElementById('qa-pw-cancel');
+  if (cancelBtn) {
+    cancelBtn.onclick = () => {
+      showToast('QA import cancelled', { duration: 1200 });
+      closeModal();
+    };
+  }
+
+  const okBtn = document.getElementById('qa-pw-ok');
+  if (okBtn) {
+    okBtn.onclick = () => {
+      const ip = document.getElementById('qa-pw-input');
+      const msg = document.getElementById('qa-pw-msg');
+      const val = ip ? String(ip.value || '') : '';
+
+      if (!val) {
+        if (msg) { msg.style.display = 'block'; msg.textContent = 'Please enter password'; }
+        return;
+      }
+
+      if (val !== 'superdad') {
+        if (msg) { msg.style.display = 'block'; msg.textContent = 'Incorrect password'; }
+        if (ip) { ip.value = ''; ip.focus(); }
+        return;
+      }
+
+      // Password OK → close password modal first (cleanly), then open QA modal
+      closeModal();
+
+      // Wait for close animation to finish before opening the QA editor modal (avoid race)
+      setTimeout(() => {
+        // --- NEW: Check local storage for saved QA text ---
+        const savedQA = localStorage.getItem('qaEditorContent');
+
+        // Build default QA export text
+        const defaultText = `/* Expected input format:
+MCQ/Type in answers:
+[Question] 1) ...
+[options] a) ... b) ... (Not applicable for MCQ)
+[Answer] ...
+[Hint] ...
+[Know More] ...
+[Image] https://...
+[YouTube] https://...
+Fill in the blanks (Intended blanks are within quotations":
+[Question] 1)Fill in the blank with a Proper Noun.
+Sentence: "Kanishka" is studying in grade 3.
+*/
+
+[Question] 1) Who took Lily and Max on their space trip?
+[options] a) Captain Star  b) Emma  c) Jake  d) Columbus
+[Answer] Captain Star
+[Hint] He is the captain of the spaceship!
+
+[Question] 2) What gives Earth heat and light?
+[options] a) The Moon  b) The Sun  c) Jupiter  d) Venus
+[Hint] It's the giant star in our solar system.
+[Know More] The Sun is a nearly perfect sphere.
+[Image] https://upload.wikimedia.org/wikipedia/commons/thumb/b/b4/The_Sun_by_the_Atmospheric_Imaging_Assembly_of_NASA%27s_Solar_Dynamics_Observatory_-_20100819.jpg/220px-The_Sun_by_the_Atmospheric_Imaging_Assembly_of_NASA%27s_Solar_Dynamics_Observatory_-_20100819.jpg
+[YouTube] https://www.youtube.com/watch?v=2HoTK_Gqi2Q
+
+[Question] 3) What shape is the Sun?
+[options] a) Square  b) Flat  c) Round ball
+[Answer] Round ball
+[Hint] Like a giant bouncy ball.
+
+[Question] 4)Fill in the blank with a verb.
+Sentence: Arjun is "Playing" football.
+
+[Question] 5)Fill in the blank with a adjective of quantity.
+Sentence: I saw a "Red|blue|green" Car. (Any one of these is recognized as correct answer)`;
+        
+        const finalText = savedQA || defaultText; // <-- USE SAVED OR DEFAULT
+
+        const modalHtml = `
+          <div style="width:70vw;max-width:1000px;">
+            <h3 class="text-2xl font-black text-pink-600 mb-3 text-center uppercase">TYPE QUESTIONS AND ANSWERS</h3>
+            <p class="text-sm text-red-500 font-semibold mb-2 text-center">
+              Text encapsulated in /*...*/ shows the expected format.
+            </p>
+            <textarea id="qa-export-text" class="w-full p-3 border rounded-lg"
+                      style="height:60vh; font-family: 'Courier New', monospace; font-size:14px;"
+                      oninput="localStorage.setItem('qaEditorContent', this.value)">${escapeHtml(finalText)}</textarea>
+            <div class="flex flex-col md:flex-row justify-center mt-4 gap-4">
+              <button id="qa-fetch-btn" class="p-3 rounded-xl bg-blue-500 text-white w-full md:w-1/3 text-lg font-bold">Fetch from Sheet</button>
+              <button id="qa-import-btn" class="p-3 rounded-xl bg-green-500 text-white w-full md:w-1/3 text-lg font-bold">Load Text</button>
+              <button id="qa-close-btn" class="p-3 rounded-xl button-primary w-full md:w-1/3 text-lg">Close</button>
+            </div>
+          </div>
+        `;
+        // Show QA editor modal
+        showModal(modalHtml, null);
+
+        // --- NEW ---
+        // Wire Fetch from Sheet
+        const fetchBtn = document.getElementById('qa-fetch-btn');
+        if (fetchBtn) fetchBtn.onclick = () => window.fetchFromSheet();
+        // --- END NEW ---
+
+        // Wire Close
+        const closeBtn = document.getElementById('qa-close-btn');
+        if (closeBtn) closeBtn.onclick = () => closeModal();
+
+        // Wire Import button
+        const importBtn = document.getElementById('qa-import-btn');
+        if (importBtn) {
+          importBtn.onclick = function () {
+            const text = document.getElementById('qa-export-text').value || '';
+            
+            // --- NEW: Save imported text to local storage ---
+            try {
+              localStorage.setItem('qaEditorContent', text);
+            } catch (e) {
+              console.warn('Failed to save QA content to localStorage', e);
+            }
+
+            if (!text.trim()) {
+              showToast('No data found to import', { duration: 2000 });
+              return;
+            }
+            // parseQAInput expected to be defined elsewhere
+            const parsed = (typeof parseQAInput === 'function') ? parseQAInput(text) : null;
+            if (parsed && parsed.length > 0) {
+              // Replace contents of ALL_QUESTIONS in-place if possible
+              try {
+                if (Array.isArray(ALL_QUESTIONS)) {
+                  ALL_QUESTIONS.length = 0;
+                  parsed.forEach(p => ALL_QUESTIONS.push(p));
+                } else {
+                  // fallback if ALL_QUESTIONS is not an array variable (shouldn't normally happen)
+                  window.ALL_QUESTIONS = parsed;
+                }
+              } catch (e) {
+                try { window.ALL_QUESTIONS = parsed; } catch (e2) {}
+              }
+              showToast(`Loaded ${parsed.length} questions`, { duration: 1600 });
+              detectAndSetTitle();
+              closeModal();
+              renderSetupScreen();
+            } else {
+              showToast('No valid questions found in pasted text', { duration: 2500 });
+            }
+          };
+        }
+      }, 160); // wait a short time for close animation
+    };
+  }
+}
+
+
+/* ---------------------- Parse QA Input (Patch 4) ---------------------- */
+function parseQAInput(raw) {
+  try {
+    // --- FIX: Remove C-style block comments (like the example) before parsing ---
+    raw = raw.replace(/\/\*[\s\S]*?\*\//g, '');
+    
+    const lines = raw.split(/\r?\n/);
+    const questions = [];
+    let current = null;
+
+    for (let line of lines) {
+      line = line.trim();
+      if (!line) continue;
+
+      if (/^\[Question\]/i.test(line)) {
+        if (current) questions.push(current);
+        current = { id: questions.length + 1, q: line.replace(/\[Question\]/i, '').replace(/^\d+\)?\s*/, '').trim(), options: [], a: '', hint: '', learnMore: '', image: null, youtube: null, fib_sentence: '', is_fib: false };
+      } else if (/^\[options\]/i.test(line)) {
+        // strip [options] and any parenthesized count
+        const opts = line.replace(/\[options\]/i, '').replace(/\(.+\)/, '').trim();
+        // try to split by letter markers like "a) " or "a)text b)text"
+        const parts = [];
+        // if there are letter markers, split by them
+        const letterSplit = opts.split(/(?=[a-dA-D]\))/);
+        if (letterSplit.length > 1) {
+          for (const p of letterSplit) {
+            const cleaned = p.replace(/^[a-dA-D]\)\s*/,'').trim();
+            if (cleaned) parts.push(cleaned);
+          }
+        } else {
+          // fallback: split by double spaces or commas
+          const fallbackParts = opts.split(/\s{2,}|,\s*/).map(x => x.trim()).filter(Boolean);
+          parts.push(...fallbackParts);
+        }
+        current.options = parts;
+      } else if (/^\[Answer\]/i.test(line)) {
+        const ans = line.replace(/\[Answer\]/i, '').trim();
+        current.a = ans;
+      } else if (/^\[Hint\]/i.test(line)) {
+        const hint = line.replace(/\[Hint\]/i, '').trim();
+        current.hint = hint;
+      } else if (/^\[Know More\]/i.test(line)) {
+        const learnMore = line.replace(/\[Know More\]/i, '').trim();
+        if(current) current.learnMore = learnMore;
+      } else if (/^\[Image\]/i.test(line)) {
+        const imageUrl = line.replace(/\[Image\]/i, '').trim();
+        if(current) current.image = imageUrl;
+      } else if (/^\[YouTube\]/i.test(line)) {
+        const youtubeUrl = line.replace(/\[YouTube\]/i, '').trim();
+        if(current) current.youtube = youtubeUrl;
+      } else if (/^Sentence:/i.test(line) && current) {
+          const match = line.match(/"([^"]+)"/);
+          if (match && typeof match[1] === 'string') {
+              const answer = match[1];
+              current.a = answer;
+              const blank = "__________";
+              current.fib_sentence = line.replace(/"([^"]+)"/, blank).replace(/^Sentence:\s*/i, '').trim();
+              current.is_fib = true;
+          }
+      } else {
+        if (current && !current.options.length && !/^\[/.test(line)) {
+          current.q += ' ' + line;
+        }
+      }
+    }
+    if (current) questions.push(current);
+
+    // sanitize options arrays to remove empty entries
+    return questions.map((q, idx) => {
+      q.id = q.id || idx+1;
+      if (!Array.isArray(q.options)) q.options = [];
+      q.options = q.options.map(o => o.trim()).filter(Boolean);
+      q.q = (q.q||'').trim();
+      q.a = (q.a||'').trim();
+      q.hint = (q.hint||'').trim();
+      q.learnMore = (q.learnMore || '').trim();
+      q.image = (q.image || '').trim() || null;
+      q.youtube = (q.youtube || '').trim() || null;
+      q.fib_sentence = (q.fib_sentence || '').trim();
+      q.is_fib = !!q.is_fib;
+      return q;
+    }).filter(q => q.q && q.q.length > 0);
+  } catch (e) {
+    console.warn('parseQAInput failed', e);
+    return [];
+  }
+}
+
+
+/* ---------------------- NEW: Fetch from Google Sheet ---------------------- */
+async function fetchFromSheet() {
+  const sheetUrl =
+    'https://docs.google.com/spreadsheets/d/e/2PACX-1vQvN6QlJiOpQXwoA_kvY5mFEIiQiwX-a3QHDZHiXxYsSswb8yYADM63YLkXZbiOmXgDSXly5Pn_wkk-/pub?output=csv';
+  const fetchBtn = document.getElementById('qa-fetch-btn');
+
+  const DEFAULT_HEADER = `/* Expected input format:
+MCQ/Type in answers:
+[Question] 1) ...
+[options] a) ... b) ...
+[Answer] ...
+[Hint] ...
+[Know More] ...
+[Image] https://...
+[YouTube] https://...
+Fill in the blanks (Intended blanks are within quotations):
+[Question] 1)Fill in the blank with a Proper Noun.
+Sentence: "Kanishka" is studying in grade 3.
+*/`;
+
+  function parseCSV(csvText) {
+    if (!csvText) return [];
+    const lines = csvText.replace(/\r\n/g, '\n').split('\n').filter(Boolean);
+    if (lines.length === 0) return [];
+    const headers = lines[0]
+      .split(',')
+      .map((h) => h.replace(/^"|"$/g, '').trim());
+    const data = [];
+    for (let r = 1; r < lines.length; r++) {
+      const parts = [];
+      let cur = '',
+        inQuote = false;
+      const line = lines[r];
+      for (let i = 0; i < line.length; i++) {
+        const ch = line[i];
+        if (ch === '"') {
+          if (inQuote && line[i + 1] === '"') {
+            cur += '"';
+            i++;
+          } else inQuote = !inQuote;
+        } else if (!inQuote && ch === ',') {
+          parts.push(cur.trim());
+          cur = '';
+        } else cur += ch;
+      }
+      parts.push(cur.trim());
+      const row = {};
+      for (let i = 0; i < headers.length; i++) {
+        row[headers[i] || `col${i}`] = parts[i] || '';
+      }
+      data.push(row);
+    }
+    return data;
+  }
+
+  function csvRowsToQAFormattedText(rows) {
+    return rows
+      .map((r, i) => {
+        const q = (r['Question'] || '').trim();
+        const o1 = (r['Option 1'] || '').trim();
+        const o2 = (r['Option 2'] || '').trim();
+        const o3 = (r['Option 3'] || '').trim();
+        const o4 = (r['Option 4'] || '').trim();
+        const a = (r['Answer'] || '').trim();
+        const h = (r['Hint'] || '').trim();
+        const km = (r['Know More'] || '').trim();
+        const img = (r['Image'] || '').trim();
+        const yt = (r['YouTube'] || '').trim();
+
+        if (!q) return '';
+        let block = `[Question] ${i + 1}) ${q}\n`;
+        if (o1 || o2 || o3 || o4)
+          block += `[options] a) ${o1}  b) ${o2}  c) ${o3}  d) ${o4}\n`;
+        if (a) block += `[Answer] ${a}\n`;
+        if (h) block += `[Hint] ${h}\n`;
+        if (km) block += `[Know More] ${km}\n`;
+        if (img) block += `[Image] ${img}\n`;
+        if (yt) block += `[YouTube] ${yt}\n`;
+        return block.trim();
+      })
+      .filter(Boolean)
+      .join('\n\n');
+  }
+
+  if (fetchBtn) {
+    fetchBtn.disabled = true;
+    fetchBtn.innerHTML = 'Fetching...';
+  }
+
+  try {
+    const url = sheetUrl + '&t=' + Date.now();
+    const resp = await fetch(url);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const text = await resp.text();
+
+    const alreadyQA = /\[Question\]/i.test(text);
+    let qaText = alreadyQA ? text : csvRowsToQAFormattedText(parseCSV(text));
+    const finalText = DEFAULT_HEADER + '\n\n' + qaText.trim();
+
+    localStorage.setItem('qaEditorContent', finalText);
+    const textarea = document.getElementById('qa-export-text');
+    if (textarea) textarea.value = finalText;
+    
+    showToast(`Fetched content from sheet`, { duration: 2500 });
+    
+  } catch (err) {
+    console.error('fetchFromSheet error:', err);
+    showToast('Error fetching: ' + (err.message || err), { duration: 3500 });
+    const textarea = document.getElementById('qa-export-text');
+    if (textarea)
+      textarea.value =
+        'Error fetching sheet:\n' +
+        err.message +
+        '\n\nURL:\n' +
+        sheetUrl +
+        '\n\nSee console for details.';
+  } finally {
+    if (fetchBtn) {
+      fetchBtn.disabled = false;
+      fetchBtn.innerHTML = 'Fetch from Sheet';
+    }
+  }
+}
+window.fetchFromSheet = fetchFromSheet;
+/* ---------------------- THEMES ---------------------- */
+const THEMES = [
+  { name: 'sunshine', accent:'#FFD54F', btn1:'#FFD54F', btn2:'#FFC107', border:'#FFD54F', headerText:'#DB2777' },
+  { name: 'ocean', accent:'#76B7FF', btn1:'#BFE6FF', btn2:'#76B7FF', border:'#76B7FF', headerText:'#0EA5A0' },
+  { name: 'mint', accent:'#34D399', btn1:'#A7F3D0', btn2:'#34D399', border:'#34D399', headerText:'#065F46' },
+  { name: 'peach', accent:'#FF8C00', btn1:'#FFB86B', btn2:'#FF8C00', border:'#FF8C00', headerText:'#9A3412' }
+];
+
+// --- NEW/MODIFIED FUNCTIONS ---
+
+function applyTheme() {
+  try{
+    const t = THEMES[state.themeIndex];
+    if (!t) return; // Safety check
+    state.theme = t;
+    document.documentElement.style.setProperty('--accent', t.accent);
+    document.documentElement.style.setProperty('--button-grad-1', t.btn1);
+    document.documentElement.style.setProperty('--button-grad-2', t.btn2);
+    document.documentElement.style.setProperty('--form-border', t.border);
+    document.documentElement.style.setProperty('--header-text', t.headerText); // Set header text color
+    
+    // Update setup screen title color immediately if it exists
+    const setupTitle = document.getElementById('app-title-setup');
+    if(setupTitle) setupTitle.style.color = t.headerText;
+    
+    // Update main app title color immediately if it exists
+    const appTitle = document.getElementById('app-title');
+    if(appTitle) appTitle.style.color = t.headerText;
+
+  } catch(e){
+    console.warn("applyTheme failed", e);
+  }
+}
+
+function cycleTheme() {
+    state.themeIndex = (state.themeIndex + 1) % THEMES.length;
+    applyTheme();
+    // Re-render setup screen to update borders and button styles
+    if (state.screen === 'setup') {
+        renderSetupScreen();
+    }
+}
+
+// --- Original pickRandomTheme (no longer called by init) ---
+function pickRandomTheme(){
+  try{
+    // This function now just sets the initial random theme
+    // but doesn't apply it. initApp calls applyTheme().
+    state.themeIndex = Math.floor(Math.random() * THEMES.length);
+    applyTheme(); // Apply the randomly selected theme
+  }catch(e){}
+}
+// --- END NEW/MODIFIED FUNCTIONS ---
+
+
+/* ---------------------- selectMascot ---------------------- */
+window.selectMascot = function(name){
+  const m = MASCOTS.find(x => x.name === name);
+  if(m){
+    state.student.mascot = m;
+    try { localStorage.setItem('mascotName', m.name); } catch(e){}
+  }
+  try { renderSetupScreen(); } catch(e) {}
+  try { renderScoreboard(); } catch(e) {}
+};
+
+/* ---------------------- UI MODE HELPERS ---------------------- */
+function applyUIMode(mode){
+  try{
+    state.mode = mode === 'minimal' ? 'minimal' : 'kid';
+    try{ 
+      localStorage.setItem('uiMode', state.mode); 
+      localStorage.setItem('uiModeManual', '1');
+    }catch(e){}
+    if(state.mode === 'minimal'){
+      document.body.classList.add('minimal-mode');
+    } else {
+      document.body.classList.remove('minimal-mode');
+    }
+    const topMascot = document.getElementById('top-mascot');
+    if(topMascot){
+      topMascot.style.display = state.mode === 'minimal' ? 'none' : 'inline-block';
+    }
+  }catch(e){ console.warn('applyUIMode failed', e); }
+}
+
+function getMuscatNow(){
+  // Return a Date object representing the current time in Asia/Muscat.
+  try {
+    // Use Intl.DateTimeFormat for more reliable timezone handling
+    const formatter = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'Asia/Muscat',
+      year: 'numeric',
+      month: 'numeric',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: 'numeric',
+      second: 'numeric'
+    });
+    
+    const parts = formatter.formatToParts(new Date());
+    const dateValues = {};
+    
+    parts.forEach(part => {
+      dateValues[part.type] = part.value;
+    });
+    
+    // Create a new date with the parsed values
+    const muscatDate = new Date(
+      `${dateValues.year}-${dateValues.month}-${dateValues.day}T${dateValues.hour}:${dateValues.minute}:${dateValues.second}`
+    );
+    
+    if (isNaN(muscatDate.getTime())) throw new Error('Invalid muscat date');
+    return muscatDate;
+  } catch (e) {
+    // Fallback: compute using UTC offset (+4) if locale approach fails
+    const now = new Date();
+    const nowUtcMs = Date.now() + (now.getTimezoneOffset() * 60000);
+    const muscatMs = nowUtcMs + (4 * 3600000); // UTC+4
+    return new Date(muscatMs);
+  }
+}
+
+function shouldDefaultToMinimalByTime(){
+  // Return true if current Muscat local time is Sun–Thu between 07:00 and 16:59
+  const muscatNow = getMuscatNow();
+  const day = muscatNow.getDay(); // 0=Sun, 6=Sat
+  const hour = muscatNow.getHours();
+  const isWeekdayRange = (day >= 0 && day <= 4);
+  const inHourRange = (hour >= 7 && hour < 17);
+  try {
+    console.log('[shouldDefaultToMinimalByTime]', muscatNow.toString(), 'day:', day, 'hour:', hour, '->', isWeekdayRange && inHourRange);
+  } catch(e){}
+  return isWeekdayRange && inHourRange;
+}
+
+/* ---------------------- Device detection & adjustments ---------------------- */
+function adjustForDevice(){
+  try{
+    const smallScreen = window.innerWidth <= 420;
+    if(smallScreen){
+      document.body.classList.add('mobile-screen');
+    } else {
+      document.body.classList.remove('mobile-screen');
+      const main = document.getElementById('main-screen');
+      if(main) main.style.paddingBottom = '';
+    }
+    try{ renderScoreboard();}catch(e){}
+  }catch(e){ console.warn('adjustForDevice failed', e); }
+}
+
+window.addEventListener('resize', () => {
+  if(window._adjustForDeviceTimeout) clearTimeout(window._adjustForDeviceTimeout);
+  window._adjustForDeviceTimeout = setTimeout(() => { adjustForDevice(); }, 120);
+});
+
+/* ---------------------- PATCHED: Improved detectAndSetTitle ---------------------- */
+/* Replaced the previous detectAndSetTitle with a more resilient, keyword-driven
+   approach. It derives a friendly title from the question set and keeps the
+   subtitle adaptive. Works well for mixed content (space, animals, math, etc.)
+*/
+function detectAndSetTitle(){
+  try{
+    // build a single large text from questions + options to search for keywords
+    const text = (ALL_QUESTIONS || []).map(q => {
+      const parts = [];
+      if (q.q) parts.push(String(q.q));
+      if (Array.isArray(q.options) && q.options.length) parts.push(q.options.join(' '));
+      if (q.hint) parts.push(q.hint);
+      return parts.join(' ');
+    }).join(' ').toLowerCase();
+
+    // helper: test any of a list of tokens
+    const hasAny = (tokens) => tokens.some(t => text.includes(t));
+
+    // priority ordered checks (most specific -> generic)
+    const mappings = [
+      { test: () => hasAny(['space','planet','solar','sun','moon','rocket','astronaut','star']), title: "Super Quiz!", subtitle: "Explore planets, stars and more" },
+      { test: () => hasAny(['animal','mammal','lion','tiger','zoo','bear','pets','ocean','fish']), title: "Animal Kingdom Quiz!", subtitle: "Animals, habitats and nature" },
+      { test: () => hasAny(['math','multiply','divide','add','subtract','sum','product','fraction','digit','place value']), title: "Math Fun Quiz!", subtitle: "Numbers, problems and puzzles" },
+      { test: () => hasAny(['history','columbus','explore','voyage','world','discover']), title: "History & Explorers Quiz!", subtitle: "People and events from the past" },
+      { test: () => hasAny(['science','experiment','plant','energy','life','universe']), title: "Science Explorer Quiz!", subtitle: "Curious questions about the world" },
+      { test: () => hasAny(['poem','poetry','night sky','stars','moon','rhyme']), title: "Night Sky & Poems Quiz!", subtitle: "Poems, moon and stars" }
+    ];
+
+    // choose mapping
+    let chosen = mappings.find(m => m.test());
+    if (!chosen) {
+      // fallback: infer from plural/singular balance or question count
+      const qCount = (ALL_QUESTIONS || []).length;
+      if (qCount >= 12) chosen = { title: "Mega Quiz", subtitle: `${qCount} questions to explore` };
+      else chosen = { title: "MCQ Challenge", subtitle: "Fun, friendly multiple choice quizzes for kids" };
+    }
+
+    // If detect keywords directly suggests a special-case title (e.g., "Round Earth")
+    // also check for some very specific phrases to refine the subtitle
+    let refinedSubtitle = chosen.subtitle;
+    if (text.includes('solar system') || text.includes('big bang')) {
+      refinedSubtitle = 'Solar System & Universe basics';
+    } else if (text.includes('multiplying') || text.includes('times table') || text.match(/\b\d×\d\b/)) {
+      refinedSubtitle = 'Multiplication facts and strategies';
+    }
+
+    // Apply to DOM
+    const appTitle = document.getElementById('app-title');
+    if (appTitle) {
+      appTitle.textContent = chosen.title;
+      appTitle.style.display = 'block';
+      appTitle.style.textAlign = 'center';
+      appTitle.style.fontSize = '2.5rem';
+      appTitle.style.fontWeight = '900';
+      appTitle.style.margin = '0.25rem auto 0.25rem auto';
+      appTitle.style.letterSpacing = '-0.5px';
+      // --- MODIFIED: Use theme variable ---
+      appTitle.style.color = 'var(--header-text)';
+    }
+    
+    // Apply to setup screen title if it exists
+    const setupTitle = document.getElementById('app-title-setup');
+    if (setupTitle) {
+        setupTitle.textContent = chosen.title;
+        setupTitle.style.color = 'var(--header-text)';
+    }
+
+
+    const subtitle = document.getElementById('app-subtitle');
+    if (subtitle) {
+      subtitle.textContent = refinedSubtitle;
+      subtitle.style.display = 'block';
+      subtitle.style.textAlign = 'center';
+      subtitle.style.fontSize = '0.95rem';
+      subtitle.style.color = '#6b7280';
+      subtitle.style.marginTop = '4px';
+      subtitle.style.maxWidth = '720px';
+      subtitle.style.marginLeft = 'auto';
+      subtitle.style.marginRight = 'auto';
+    }
+
+    // ensure document title updated for browser tab
+    document.title = chosen.title;
+  }catch(e){
+    console.warn('detectAndSetTitle error', e);
+    // graceful fallback: minimal title
+    try {
+      const t = document.getElementById('app-title');
+      if (t) { t.textContent = 'MCQ Challenge'; t.style.display='block'; }
+      document.title = 'MCQ Challenge';
+    } catch(_) {}
+  }
+}
+
+/* ---------------------- POST-INIT CHECKS (safe) ---------------------- */
+(function postInitChecks(){
+  try {
+    const savedFormat = localStorage.getItem('quizFormat');
+    if(savedFormat) state.format = savedFormat;
+
+    const el = document.getElementById('qa-random-group');
+    if(el){
+      el.classList.remove('hidden');
+      return;
+    }
+  } catch(err) {
+    console.warn('postInitChecks failed safely', err);
+  }
+})();
+
+/* ---------------------- LEADERBOARD ---------------------- */
+function renderLeaderboard(parentContainer){
+  try{
+    const boardKey = 'quizLeaderboard';
+    const list = JSON.parse(localStorage.getItem(boardKey) || '[]');
+    list.sort((a,b)=>b.score - a.score);
+    let rows = '';
+    list.forEach((r,i)=>{
+      const isTop = i===0;
+      rows += `
+        <tr style="background:${isTop?'#fff8dc':'transparent'};font-weight:${isTop?'700':'500'}">
+          <td>${escapeHtml(r.name)} ${isTop?'⭐':''}</td>
+          <td style="text-align:center">${r.score}</td>
+          <td style="text-align:right;font-size:0.8rem;color:#6b7280">${r.time}</td>
+        </tr>`;
+    });
+    const html = `
+      <div class="leaderboard mt-3 text-center w-full">
+        <h4 class="text-sm font-bold text-yellow-600 mb-1">🏆 Leader Board</h4>
+        <table style="width:100%;font-size:0.85rem;border-collapse:collapse">
+          <thead><tr style="color:#374151;font-weight:700"><th style="text-align:left">Name</th><th>Score</th><th style="text-align:right">Date/Time</th></tr></thead>
+          <tbody>${rows || '<tr><td colspan="3" class="text-gray-400 text-sm">No records yet</td></tr>'}</tbody>
+        </table>
+      </div>`;
+    let existing = parentContainer.querySelector('.leaderboard');
+    if(existing) existing.remove();
+    parentContainer.insertAdjacentHTML('beforeend', html);
+  }catch(e){ console.warn('renderLeaderboard error',e); }
+}
+
+function saveToLeaderboard(){
+  try{
+    const name = state.student.name || 'Student';
+    const score = state.score.correct || 0;
+    const now = new Date();
+    const time = now.toLocaleDateString('en-GB',{day:'2-digit',month:'2-digit'}) + '/' + now.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+    const record = { name, score, time };
+    const key = 'quizLeaderboard';
+    const list = JSON.parse(localStorage.getItem(key) || '[]');
+    list.push(record);
+    localStorage.setItem(key, JSON.stringify(list.slice(-10)));
+    renderScoreboard();
+  }catch(e){ console.warn('saveToLeaderboard failed',e); }
+}
+
+/* ---------------------- STAGE THUMBS ANIMATION HELPER ---------------------- */
+function showThumbsAnimation(duration = 1000){
+  const main = document.getElementById('main-screen');
+  if(!main) return;
+  let ov = document.querySelector('.thumbs-overlay');
+  if(ov) ov.remove();
+  ov = document.createElement('div');
+  ov.className = 'thumbs-overlay';
+  ov.innerHTML = `<span aria-hidden="true">😊 👍</span>`;
+  main.appendChild(ov);
+  requestAnimationFrame(()=> ov.classList.add('show'));
+  setTimeout(()=> {
+    ov.classList.remove('show');
+    setTimeout(()=> ov.remove(), 220);
+  }, duration);
+}
+
+/* ---------------------- NEW: attachFloatingButtons (patched) ---------------------- */
+function attachFloatingButtons() {
+  const qaBtn = document.getElementById('qa-btn');
+  const randBtn = document.getElementById('randomize-btn');
+
+  // idempotent attachment: avoid adding multiple listeners when called many times
+  try {
+    if (qaBtn) {
+      qaBtn.disabled = false;
+      qaBtn.onclick = function (e) {
+        e && e.preventDefault();
+        openQAExportWindow();
+        return false;
+      };
+    }
+
+    if (randBtn) {
+      randBtn.disabled = false;
+      randBtn.onclick = function (e) {
+        e && e.preventDefault();
+        try {
+          shuffle(ALL_QUESTIONS);
+          if (state && state.screen === 'quiz') {
+            state.questions = ALL_QUESTIONS.slice();
+            state.currentIndex = 0;
+            state.currentAnswered = !!state.questionHistory[state.currentIndex];
+            renderQuizScreen();
+          } else {
+            renderSetupScreen();
+          }
+        } catch (err) {
+          console.warn('Randomize action failed', err);
+        }
+        showToast('Questions randomized');
+        return false;
+      };
+    }
+  } catch (err) {
+    console.warn('attachFloatingButtons idempotent attach failed', err);
+  }
+}
+
+/* ---------- Module-to-global bridge & small runtime fixes (plain JS IIFE) ---------- */
+(function exposeGlobalsAndFixes(){
+
+  // Wrap startQuiz to persist mascot if present
+  if (typeof startQuiz === 'function') {
+    const _origStartQuiz = startQuiz;
+    startQuiz = function(){
+      try {
+        try { if(state && state.student && state.student.mascot && state.student.mascot.name) localStorage.setItem('mascotName', state.student.mascot.name); } catch(e){}
+      } catch(e){}
+      return _origStartQuiz.apply(this, arguments);
+    };
+  }
+
+  // Ensure saved session loader runs early
+  try {
+    if (typeof loadQuizStateFromLocalStorage === 'function') {
+      try { loadQuizStateFromLocalStorage(); } catch(e){ /* non-fatal */ }
+    }
+  } catch(e){}
+
+  // Force mobile class if small screen on initial load
+  try{
+    if(typeof window !== 'undefined' && window.innerWidth <= 420){
+      try { document.body.classList.add('mobile-screen'); } catch(e){}
+    }
+  }catch(e){}
+
+  // CSS runtime patch: smooth hover transition for kid-card
+  try {
+    const styleId = '__mcq_runtime_css_tweaks';
+    if (!document.getElementById(styleId)) {
+      const s = document.createElement('style');
+      s.id = styleId;
+      s.textContent = `
+        /* :root { --accent: #ffd54f; --button-grad-1: #ffd54f; --button-grad-2: #ffc107; --form-border: #ffd54f; --sb-bg: #ffffff; --sb-plate: #f8fafc; } */
+        .kid-card { transition: transform 180ms ease, box-shadow 180ms ease; }
+      `;
+      document.head && document.head.appendChild(s);
+    }
+  } catch (e) { /* ignore */ }
+
+  // Expose safe list of functions to global (for inline handlers)
+  const namesToExpose = [
+    'handleAnswer',
+    'handleTypedAnswer',
+    'skipQuestion',
+    'selectMascot',
+    'closeModal',
+    'startTimer',
+    'applyUIMode',
+    'previousQuestion',
+    'nextQuestion',
+    'showHint',
+    'showWrongLog',
+    'renderSetupScreen',
+    'openQAExportWindow',
+    'showLearnMore',
+    'fetchFromSheet', // <-- ADDED
+    'cycleTheme' // <-- ADDED
+  ];
+
+  namesToExpose.forEach(name => {
+    try {
+      if (typeof window[name] === 'function') return;
+      if (typeof self !== 'undefined' && typeof self[name] === 'function') {
+        window[name] = function(...args){
+          try { return self[name].apply(this, args); }
+          catch(err){ console.warn(`global wrapper for ${name} inner call threw:`, err); }
+        };
+      } else {
+        try {
+          if (typeof eval(name) === 'function') {
+            window[name] = function(...args){
+              try { return eval(name).apply(this, args); }
+              catch(err){ console.warn(`global wrapper for ${name} inner call threw:`, err); }
+            };
+            return;
+          }
+        } catch(e){}
+        window[name] = function(...args){ console.warn(`Placeholder global "${name}" called. Inner function missing.`, args); };
+      }
+    } catch(e){
+      if (typeof window[name] !== 'function') {
+        window[name] = function(...args){ console.warn(`Placeholder global "${name}" called. Inner function missing.`, args); };
+      }
+    }
+  });
+
+  try { console.debug('MCQ bridge: module->global exposure applied for', namesToExpose); } catch(e){}
+
+})();
+</script>
+<script type="module" src="/index.tsx"></script>
+</body>
+</html>

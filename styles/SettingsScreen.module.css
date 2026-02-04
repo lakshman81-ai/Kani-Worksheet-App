@@ -1,0 +1,344 @@
+/* Settings Screen Styles */
+
+.settingsContainer {
+    background: linear-gradient(135deg, #1a1a3e 0%, #2d1f5e 50%, #1a1a3e 100%);
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.settingsHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 30px;
+}
+
+.settingsBackBtn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 24px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 16px;
+    color: #fff;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.settingsBackBtn:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.settingsTitle {
+    font-size: 28px;
+    font-weight: 900;
+    color: #fff;
+    margin: 0;
+}
+
+.settingsSection {
+    margin-bottom: 30px;
+}
+
+.settingsSectionTitle {
+    font-size: 20px;
+    font-weight: 800;
+    color: #fff;
+    margin: 0 0 20px 0;
+}
+
+.topicConfigList {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.topicConfigCard {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.topicConfigHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 15px;
+}
+
+.topicConfigName {
+    font-size: 18px;
+    font-weight: 800;
+    color: #fff;
+}
+
+.difficultyTag {
+    padding: 6px 14px;
+    border-radius: 15px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #fff;
+}
+
+.topicConfigDetails {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.configRow {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.configLabel {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.6);
+    min-width: 100px;
+}
+
+.configValue {
+    font-size: 14px;
+    font-weight: 600;
+    color: #fff;
+}
+
+.configValueUrl {
+    font-size: 12px;
+    font-weight: 600;
+    color: #4dd0e1;
+    word-break: break-all;
+}
+
+.otherSettingsCard {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 25px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.settingRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.settingRow:last-child {
+    border-bottom: none;
+}
+
+.settingInfo {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.settingIcon {
+    font-size: 28px;
+}
+
+.settingName {
+    font-size: 18px;
+    font-weight: 700;
+    color: #fff;
+}
+
+.toggleBtn {
+    padding: 12px 30px;
+    border-radius: 25px;
+    border: none;
+    font-size: 14px;
+    font-weight: 800;
+    color: #fff;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.toggleBtn:hover {
+    transform: scale(1.05);
+}
+
+/* Worksheet Generator Section */
+.generatorSection {
+    margin-top: 30px;
+}
+
+.generatorCard {
+    background: linear-gradient(135deg, rgba(124, 77, 255, 0.2) 0%, rgba(171, 71, 188, 0.2) 100%);
+    backdrop-filter: blur(10px);
+    border-radius: 24px;
+    padding: 30px;
+    border: 2px solid rgba(124, 77, 255, 0.3);
+}
+
+.generatorTitle {
+    font-size: 22px;
+    font-weight: 800;
+    color: #fff;
+    margin: 0 0 10px 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.generatorSubtitle {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.7);
+    margin: 0 0 25px 0;
+}
+
+.generatorForm {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.formGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.formLabel {
+    font-size: 14px;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.formInput,
+.formSelect,
+.formTextarea {
+    padding: 14px 18px;
+    font-size: 16px;
+    font-weight: 600;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    outline: none;
+    font-family: inherit;
+    box-sizing: border-box;
+    background: rgba(255, 255, 255, 0.05);
+    color: #fff;
+    transition: all 0.3s ease;
+}
+
+.formInput::placeholder,
+.formTextarea::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.formInput:focus,
+.formSelect:focus,
+.formTextarea:focus {
+    border-color: rgba(124, 77, 255, 0.5);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.formTextarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.formRow {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.exportOptions {
+    display: flex;
+    gap: 15px;
+    margin-top: 10px;
+}
+
+.exportOption {
+    flex: 1;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+}
+
+.exportOption:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.exportOptionActive {
+    background: rgba(124, 77, 255, 0.2);
+    border-color: rgba(124, 77, 255, 0.5);
+}
+
+.exportOptionIcon {
+    font-size: 32px;
+    display: block;
+    margin-bottom: 8px;
+}
+
+.exportOptionLabel {
+    font-size: 14px;
+    font-weight: 700;
+    color: #fff;
+}
+
+.generateBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 18px 40px;
+    background: linear-gradient(135deg, #7c4dff 0%, #651fff 100%);
+    border: none;
+    border-radius: 30px;
+    color: #fff;
+    font-size: 18px;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 8px 30px rgba(124, 77, 255, 0.4);
+    transition: all 0.3s ease;
+    margin-top: 10px;
+}
+
+.generateBtn:hover:not(:disabled) {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 40px rgba(124, 77, 255, 0.5);
+}
+
+.generateBtn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.generatorProgress {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    padding: 30px;
+}
+
+.progressSpinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid rgba(255, 255, 255, 0.1);
+    border-top-color: #7c4dff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+.progressText {
+    font-size: 16px;
+    font-weight: 600;
+    color: #fff;
+}
