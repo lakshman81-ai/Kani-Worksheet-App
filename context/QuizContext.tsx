@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
-import type { Topic, Question, Mascot } from '../types';
+import type { Topic, Question, Mascot, WrongAnswer } from '../types';
 import { useLocalStorage, useUserStats, useQuizProgress } from '../hooks/useLocalStorage';
 
 // Mascots data
@@ -10,14 +10,6 @@ export const MASCOTS: Mascot[] = [
     { id: 'tiger', emoji: '🐯', name: 'Stripe', color: '#ff9800', bgGradient: 'linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%)' },
     { id: 'koala', emoji: '🐨', name: 'Cuddles', color: '#607d8b', bgGradient: 'linear-gradient(135deg, #eceff1 0%, #cfd8dc 100%)' },
 ];
-
-// Wrong answer entry for review
-interface WrongAnswer {
-    questionId: string;
-    questionText: string;
-    correctAnswer: string;
-    userAnswer: string;
-}
 
 // Quiz state interface
 interface QuizState {
@@ -31,7 +23,7 @@ interface QuizState {
     questions: Question[];
     selectedAnswer: string | null;
     typedAnswer: string; // For TTA/FIB question types
-    userAnswers: { questionIndex: number; selectedAnswer: string; isCorrect: boolean }[];
+    userAnswers: { questionIndex: number; selectedAnswer: string | null; typedAnswer: string; isCorrect: boolean }[];
     correctAnswers: number;
     skippedCount: number; // Track skipped questions
     wrongAnswers: WrongAnswer[]; // Track wrong answers for review
@@ -159,34 +151,41 @@ function quizReducer(state: QuizState, action: QuizAction): QuizState {
                 correctAnswers: action.isCorrect ? state.correctAnswers + 1 : state.correctAnswers,
                 quizScore: action.isCorrect ? state.quizScore + 10 : state.quizScore,
                 userAnswers: [
-                    ...state.userAnswers,
+                    ...state.userAnswers.filter(a => a.questionIndex !== state.currentQuestionIndex),
                     {
                         questionIndex: state.currentQuestionIndex,
-                        selectedAnswer: state.selectedAnswer || '',
+                        selectedAnswer: state.selectedAnswer,
+                        typedAnswer: state.typedAnswer,
                         isCorrect: action.isCorrect,
                     },
                 ],
             };
-        case 'NEXT_QUESTION':
+        case 'NEXT_QUESTION': {
+            const newIndex = state.currentQuestionIndex + 1;
+            const saved = state.userAnswers.find(a => a.questionIndex === newIndex);
             return {
                 ...state,
-                currentQuestionIndex: state.currentQuestionIndex + 1,
-                selectedAnswer: null,
-                typedAnswer: '',
-                questionAnswered: false,
+                currentQuestionIndex: newIndex,
+                selectedAnswer: saved?.selectedAnswer || null,
+                typedAnswer: saved?.typedAnswer || '',
+                questionAnswered: !!saved,
                 usedKnowMoreBeforeAnswer: false,
                 showKnowMorePopup: false,
             };
-        case 'PREVIOUS_QUESTION':
+        }
+        case 'PREVIOUS_QUESTION': {
+            const newIndex = Math.max(0, state.currentQuestionIndex - 1);
+            const saved = state.userAnswers.find(a => a.questionIndex === newIndex);
             return {
                 ...state,
-                currentQuestionIndex: Math.max(0, state.currentQuestionIndex - 1),
-                selectedAnswer: null,
-                typedAnswer: '',
-                questionAnswered: state.userAnswers.some(a => a.questionIndex === state.currentQuestionIndex - 1),
+                currentQuestionIndex: newIndex,
+                selectedAnswer: saved?.selectedAnswer || null,
+                typedAnswer: saved?.typedAnswer || '',
+                questionAnswered: !!saved,
                 usedKnowMoreBeforeAnswer: false,
                 showKnowMorePopup: false,
             };
+        }
         case 'SKIP_QUESTION':
             return {
                 ...state,
