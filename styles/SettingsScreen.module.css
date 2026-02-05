@@ -2,8 +2,10 @@
 
 .settingsContainer {
     background: linear-gradient(135deg, #1a1a3e 0%, #2d1f5e 50%, #1a1a3e 100%);
-    min-height: 100vh;
+    height: 100vh;
+    overflow-y: auto;
     padding: 20px;
+    box-sizing: border-box;
 }
 
 .settingsHeader {

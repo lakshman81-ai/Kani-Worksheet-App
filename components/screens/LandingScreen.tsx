@@ -207,12 +207,7 @@ export default function LandingScreen({
                             onClick={() => onTopicClick(topic)}
                             role="button"
                             tabIndex={0}
-                            onKeyDown={(e) => {
-                                if (e.key === 'Enter' || e.key === ' ') {
-                                    e.preventDefault();
-                                    onTopicClick(topic);
-                                }
-                            }}
+                            onKeyPress={(e) => e.key === 'Enter' && onTopicClick(topic)}
                             aria-label={`${topic.name} quiz - ${topic.difficulty} difficulty`}
                         >
                             <div className={styles.topicHeader}>
