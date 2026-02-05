@@ -21,9 +21,3 @@
 **Learning:** When auditing a React/Vite project with TypeScript, explicitly checking for missing type definitions (like `@types/react`) is crucial even if the project builds via Vite (which may skip type checking). Vite's `build` command does not always run `tsc`.
 
 **Action:** Always run `npx tsc --noEmit` as part of the audit process. Ensure `env.d.ts` exists for CSS modules and `vite/client` types.
-
-## 2026-02-04 - Keyboard Interaction Patterns for Interactive Divs
-
-**Learning:** The application uses many interactive `div` elements (like Mascot cards and Topic tiles) that originally relied on `onKeyPress` (deprecated) and only listened for 'Enter'. This excludes users who navigate via keyboard and expect 'Space' to trigger selection, and `onKeyPress` is not reliably fired for non-character keys.
-
-**Action:** Replace `onKeyPress` with `onKeyDown` for all interactive non-button elements. Explicitly handle both `Enter` and `Space` keys, and call `e.preventDefault()` for `Space` to prevent page scrolling during interaction.

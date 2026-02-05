@@ -106,24 +106,64 @@ export default function SettingsScreen({
             {/* Tile Configuration Section */}
             {worksheetConfigs.length > 0 && (
                 <div className={styles.settingsSection}>
-                    <h2 className={styles.settingsSectionTitle}>📚 Workbook Tiles</h2>
-                    <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '14px', marginBottom: '15px' }}>
-                        Configure the 10 standard tiles on the home screen. Assign a worksheet to a tile to show it.
-                    </p>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+                        <div>
+                            <h2 className={styles.settingsSectionTitle} style={{ marginBottom: '5px' }}>📚 Workbook Tiles</h2>
+                            <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '14px', margin: 0 }}>
+                                Configure tiles and difficulty.
+                            </p>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', background: 'rgba(0,0,0,0.3)', padding: '5px 10px', borderRadius: '8px' }}>
+                            <span style={{ fontSize: '13px', fontWeight: 'bold', color: '#ff9800' }}>DIFFICULTY:</span>
+                            <select
+                                value={state.globalDifficulty}
+                                onChange={(e) => dispatch({ type: 'SET_GLOBAL_DIFFICULTY', difficulty: e.target.value as any })}
+                                style={{
+                                    background: 'transparent',
+                                    border: 'none',
+                                    color: 'white',
+                                    fontWeight: 'bold',
+                                    fontSize: '13px',
+                                    cursor: 'pointer',
+                                    outline: 'none'
+                                }}
+                            >
+                                <option value="None" style={{ color: 'black' }}>NONE (ALL)</option>
+                                <option value="Easy" style={{ color: 'black' }}>LOW</option>
+                                <option value="Medium" style={{ color: 'black' }}>MEDIUM</option>
+                                <option value="Hard" style={{ color: 'black' }}>HIGH</option>
+                            </select>
+                        </div>
+                    </div>
+
                     <div className={styles.otherSettingsCard}>
                         {Array.from({ length: 10 }, (_, i) => i + 1).map((tileIndex) => {
                             const currentWorksheetId = state.tileSettings[tileIndex] || '';
                             const selectedWorksheet = worksheetConfigs.find(w => w.id === currentWorksheetId);
+                            const customName = state.tileNames[tileIndex] || '';
 
                             return (
                                 <div key={tileIndex} className={styles.settingRow} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '10px', marginBottom: '10px' }}>
-                                    <div className={styles.settingInfo}>
+                                    <div className={styles.settingInfo} style={{ flex: 1, marginRight: '10px' }}>
                                         <span className={styles.settingIcon}>
                                             {selectedWorksheet ? (selectedWorksheet as any).icon || '📝' : '⬛'}
                                         </span>
-                                        <span className={styles.settingName}>
-                                            Tile {tileIndex} {selectedWorksheet ? `(${selectedWorksheet.name})` : '(Empty)'}
-                                        </span>
+                                        <input
+                                            type="text"
+                                            value={customName}
+                                            placeholder={`Tile ${tileIndex} ${selectedWorksheet ? `(${selectedWorksheet.name})` : ''}`}
+                                            onChange={(e) => dispatch({ type: 'SET_TILE_NAME', tileIndex, name: e.target.value })}
+                                            style={{
+                                                background: 'transparent',
+                                                border: 'none',
+                                                borderBottom: '1px dashed rgba(255,255,255,0.3)',
+                                                color: 'white',
+                                                fontSize: '14px',
+                                                width: '100%',
+                                                padding: '5px 0',
+                                                outline: 'none'
+                                            }}
+                                        />
                                     </div>
                                     <select
                                         value={currentWorksheetId}
@@ -140,7 +180,7 @@ export default function SettingsScreen({
                                             fontSize: '13px',
                                             cursor: 'pointer',
                                             outline: 'none',
-                                            maxWidth: '200px'
+                                            maxWidth: '180px'
                                         }}
                                     >
                                         <option value="" style={{ color: '#888' }}>🚫 Hide Tile</option>

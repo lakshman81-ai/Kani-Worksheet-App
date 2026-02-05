@@ -46,6 +46,8 @@ interface QuizState {
     // Map of tileIndex (1-10) -> worksheetId (e.g. { 1: 'ws1', 2: 'ws7' })
     tileSettings: Record<number, string>;
     currentWorksheetName?: string;
+    globalDifficulty: 'None' | 'Easy' | 'Medium' | 'Hard';
+    tileNames: Record<number, string>;
 }
 
 // Action types
@@ -73,7 +75,9 @@ type QuizAction =
     | { type: 'RESTORE_PROGRESS'; data: Partial<QuizState> }
     | { type: 'SET_WORKSHEET'; topicId: string; worksheetId: string }
     | { type: 'SET_TILE_CONFIG'; tileIndex: number; worksheetId: string }
-    | { type: 'SET_CURRENT_WORKSHEET_NAME'; name: string };
+    | { type: 'SET_CURRENT_WORKSHEET_NAME'; name: string }
+    | { type: 'SET_GLOBAL_DIFFICULTY'; difficulty: 'None' | 'Easy' | 'Medium' | 'Hard' }
+    | { type: 'SET_TILE_NAME'; tileIndex: number; name: string };
 
 // Initial state
 const initialState: QuizState = {
@@ -108,6 +112,8 @@ const initialState: QuizState = {
         7: 'ws7', // Fractions
     },
     currentWorksheetName: undefined,
+    globalDifficulty: 'None',
+    tileNames: {},
 };
 
 // Reducer
@@ -249,6 +255,16 @@ function quizReducer(state: QuizState, action: QuizAction): QuizState {
             };
         case 'SET_CURRENT_WORKSHEET_NAME':
             return { ...state, currentWorksheetName: action.name };
+        case 'SET_GLOBAL_DIFFICULTY':
+            return { ...state, globalDifficulty: action.difficulty };
+        case 'SET_TILE_NAME':
+            return {
+                ...state,
+                tileNames: {
+                    ...state.tileNames,
+                    [action.tileIndex]: action.name
+                }
+            };
         default:
             return state;
     }
@@ -282,6 +298,8 @@ export function QuizProvider({ children }: QuizProviderProps) {
     const [savedMascot] = useLocalStorage('selected-mascot', 'unicorn');
     const [savedWorksheetSettings] = useLocalStorage('worksheet-settings', {});
     const [savedTileSettings] = useLocalStorage('tile-settings', {});
+    const [savedGlobalDifficulty] = useLocalStorage('global-difficulty', 'None');
+    const [savedTileNames] = useLocalStorage('tile-names', {});
 
     useEffect(() => {
         if (savedPlayerName) {
@@ -301,6 +319,14 @@ export function QuizProvider({ children }: QuizProviderProps) {
                  dispatch({ type: 'SET_TILE_CONFIG', tileIndex: parseInt(idx), worksheetId: wId as string });
             });
         }
+        if (savedGlobalDifficulty) {
+            dispatch({ type: 'SET_GLOBAL_DIFFICULTY', difficulty: savedGlobalDifficulty as any });
+        }
+        if (savedTileNames && Object.keys(savedTileNames).length > 0) {
+             Object.entries(savedTileNames).forEach(([idx, name]) => {
+                 dispatch({ type: 'SET_TILE_NAME', tileIndex: parseInt(idx), name: name as string });
+             });
+        }
     }, [savedPlayerName, savedMascot]);
 
     // Save settings when they change
@@ -315,6 +341,16 @@ export function QuizProvider({ children }: QuizProviderProps) {
             localStorage.setItem('tile-settings', JSON.stringify(state.tileSettings));
         }
     }, [state.tileSettings]);
+
+    useEffect(() => {
+        localStorage.setItem('global-difficulty', state.globalDifficulty);
+    }, [state.globalDifficulty]);
+
+    useEffect(() => {
+        if (Object.keys(state.tileNames).length > 0) {
+            localStorage.setItem('tile-names', JSON.stringify(state.tileNames));
+        }
+    }, [state.tileNames]);
 
     // Timer effect
     useEffect(() => {

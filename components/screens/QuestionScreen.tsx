@@ -8,6 +8,12 @@ import KnowMoreModal from '../modals/KnowMoreModal';
 export default function QuestionScreen() {
     const { state, dispatch, currentMascot, currentQuestion, stats } = useQuiz();
     const audio = useAudioFeedback();
+    const [showHint, setShowHint] = React.useState(false);
+
+    // Reset hint visibility on new question
+    React.useEffect(() => {
+        setShowHint(false);
+    }, [state.currentQuestionIndex]);
 
     const formatTime = (seconds: number) => {
         const mins = Math.floor(seconds / 60);
@@ -214,6 +220,8 @@ export default function QuestionScreen() {
         ? state.selectedAnswer && !state.questionAnswered
         : state.typedAnswer.trim() && !state.questionAnswered;
 
+    const hasKnowMore = !!(currentQuestion?.knowMore || currentQuestion?.knowMoreText || currentQuestion?.youtubeUrl);
+
     return (
         <div className={styles.questionContainer}>
             {/* Animated stars background */}
@@ -326,9 +334,13 @@ export default function QuestionScreen() {
                         {currentQuestion.text}
                     </div>
 
-                    {currentQuestion.hint && (
-                        <div className={styles.questionNote}>
-                            <strong>💡 Hint:</strong> <em>{currentQuestion.hint}</em>
+                    {/* Hint Banner - Only visible when showHint is true */}
+                    {showHint && currentQuestion.hint && (
+                        <div className={styles.hintBanner}>
+                            <span style={{ fontSize: '20px' }}>💡</span>
+                            <div>
+                                <strong>Hint:</strong> {currentQuestion.hint}
+                            </div>
                         </div>
                     )}
 
@@ -373,17 +385,17 @@ export default function QuestionScreen() {
                     <button
                         className={styles.hintButton}
                         style={{ opacity: currentQuestion.hint ? 1 : 0.5 }}
-                        onClick={() => currentQuestion.hint && alert(`💡 Hint: ${currentQuestion.hint}`)}
+                        onClick={() => currentQuestion.hint && setShowHint(!showHint)}
                         disabled={!currentQuestion.hint}
                     >
                         <span className={styles.hintIconSmall}>💡</span>
-                        <span className={styles.helperText}>Hint</span>
+                        <span className={styles.helperText}>{showHint ? 'Hide Hint' : 'Hint'}</span>
                     </button>
                     <button
                         className={styles.knowMoreButton}
-                        style={{ opacity: currentQuestion.knowMore ? 1 : 0.5 }}
+                        style={{ opacity: hasKnowMore ? 1 : 0.5 }}
                         onClick={handleKnowMore}
-                        disabled={!currentQuestion.knowMore}
+                        disabled={!hasKnowMore}
                     >
                         <span className={styles.knowMoreIcon}>📖</span>
                         <span className={styles.helperText}>Know More</span>

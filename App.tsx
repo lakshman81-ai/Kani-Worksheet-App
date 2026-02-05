@@ -95,7 +95,7 @@ function AppContent() {
 
       dispatch({ type: 'SET_CURRENT_WORKSHEET_NAME', name: worksheetName });
 
-      let fetchedQuestions = await fetchQuestionsFromSheet(topicWithConfig, localBasePath);
+      let fetchedQuestions = await fetchQuestionsFromSheet(topicWithConfig, localBasePath, state.globalDifficulty);
 
       // Shuffle questions if randomize is ON
       if (state.randomize && fetchedQuestions.length > 1) {
