@@ -1,12 +1,14 @@
 import React from 'react';
 import { useQuiz } from '../../context/QuizContext';
-import { Topic, TopicConfig } from '../../services/googleSheetsService';
+import { Topic } from '../../types';
+import { TopicConfig, WorksheetConfig } from '../../services/googleSheetsService';
 import styles from '../../styles/LandingScreen.module.css';
 import sharedStyles from '../../styles/shared.module.css';
 
 interface LandingScreenProps {
     topics: Topic[];
     topicConfigs: TopicConfig[];
+    worksheetConfigs: WorksheetConfig[];
     onTopicClick: (topic: Topic) => void;
     onShowSettings: () => void;
 }
@@ -14,13 +16,45 @@ interface LandingScreenProps {
 export default function LandingScreen({
     topics,
     topicConfigs,
+    worksheetConfigs,
     onTopicClick,
     onShowSettings
 }: LandingScreenProps) {
     const { state, dispatch, currentMascot, stats } = useQuiz();
 
+    // Build topics list based on configured tiles
+    const configuredTopics: Topic[] = [];
+
+    console.log('DEBUG: tileSettings:', state.tileSettings);
+    console.log('DEBUG: worksheetConfigs length:', worksheetConfigs.length);
+
+    // Iterate 1-10 slots
+    for (let i = 1; i <= 10; i++) {
+        const wsId = state.tileSettings[i];
+        if (wsId) {
+            const wsConfig = worksheetConfigs.find(w => w.id === wsId);
+            if (wsConfig) {
+                // Construct a Topic object from the worksheet config
+                configuredTopics.push({
+                    id: wsConfig.id, // Use worksheet ID as topic ID
+                    name: wsConfig.name.replace(/^Worksheet \d+ - /, ''), // Clean name
+                    icon: wsConfig.icon || '📝',
+                    color: wsConfig.color || '#607D8B',
+                    difficulty: 'Medium', // Default
+                    solved: 0,
+                    total: 0, // Should be fetched but 0 is fine for UI
+                    sheetUrl: 'LOCAL',
+                    worksheetNumber: parseInt(wsConfig.id.replace('ws', ''), 10)
+                });
+            }
+        }
+    }
+
+    // Use default topics if no tiles configured yet (first load fallback)
+    const displayTopics = configuredTopics.length > 0 ? configuredTopics : topics;
+
     // Calculate total quizzes available
-    const totalQuizzes = topics.reduce((sum, t) => sum + t.total, 0);
+    const totalQuizzes = displayTopics.length * 10; // Approximate
 
     // Get best score from stats
     const overallBestScore = Object.values(stats.stats.bestScores).length > 0
@@ -104,7 +138,7 @@ export default function LandingScreen({
 
             {/* Topics Grid */}
             <div className={styles.topicsGrid}>
-                {topics.map((topic, index) => {
+                {displayTopics.map((topic, index) => {
                     const bestScore = stats.getBestScore(topic.id);
                     return (
                         <div
@@ -136,7 +170,6 @@ export default function LandingScreen({
                             </div>
                             <div className={styles.topicProgress}>
                                 <span>Best: {bestScore}%</span>
-                                <span>Questions: {topic.total}</span>
                             </div>
                             {bestScore > 0 && (
                                 <div className={styles.progressBar}>

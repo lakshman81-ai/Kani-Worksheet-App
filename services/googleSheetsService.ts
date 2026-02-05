@@ -9,6 +9,8 @@ export interface WorksheetConfig {
   name: string;
   path: string;
   description?: string;
+  icon?: string;
+  color?: string;
 }
 
 // Fetch available worksheets from master_index.json
