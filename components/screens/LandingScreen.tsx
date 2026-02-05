@@ -227,7 +227,15 @@ export default function LandingScreen({
                             <div className={styles.topicProgress}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
                                     <span>Best: {bestScore}%</span>
-                                    <span style={{ fontSize: '11px', opacity: 0.8 }}>
+                                    <span style={{
+                                        fontSize: '14px',
+                                        fontWeight: 'bold',
+                                        opacity: 1,
+                                        background: 'rgba(0,0,0,0.05)',
+                                        padding: '2px 8px',
+                                        borderRadius: '8px',
+                                        color: '#333'
+                                    }}>
                                         {questionCounts[topic.id] !== undefined ? `${questionCounts[topic.id]} Qs` : '...'}
                                     </span>
                                 </div>

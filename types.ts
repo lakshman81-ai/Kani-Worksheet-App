@@ -52,6 +52,13 @@ export interface Answer {
   text: string;
 }
 
+export interface WrongAnswer {
+  questionId: string;
+  questionText: string;
+  correctAnswerText: string;
+  userAnswerText: string;
+}
+
 export interface QuizState {
   currentScreen: 'login' | 'landing' | 'question' | 'result';
   playerName: string;

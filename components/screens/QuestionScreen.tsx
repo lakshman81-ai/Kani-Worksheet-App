@@ -4,11 +4,13 @@ import { useAudioFeedback } from '../../hooks/useAudioFeedback';
 import styles from '../../styles/QuestionScreen.module.css';
 import sharedStyles from '../../styles/shared.module.css';
 import KnowMoreModal from '../modals/KnowMoreModal';
+import OopsModal from '../modals/OopsModal';
 
 export default function QuestionScreen() {
     const { state, dispatch, currentMascot, currentQuestion, stats } = useQuiz();
     const audio = useAudioFeedback();
     const [showHint, setShowHint] = React.useState(false);
+    const [showOopsModal, setShowOopsModal] = React.useState(false);
 
     // Reset hint visibility on new question
     React.useEffect(() => {
@@ -67,14 +69,26 @@ export default function QuestionScreen() {
             audio.playCorrect();
         } else {
             audio.playIncorrect();
+
+            // Prepare text for wrong answer log
+            let userAnswerText = userAnswer;
+            let correctAnswerText = currentQuestion.correctAnswer;
+
+            if (questionType === 'MCQ') {
+                const selectedOption = currentQuestion.answers.find(a => a.id === userAnswer);
+                const correctOption = currentQuestion.answers.find(a => a.id === currentQuestion.correctAnswer);
+                userAnswerText = selectedOption ? selectedOption.text : userAnswer;
+                correctAnswerText = correctOption ? correctOption.text : currentQuestion.correctAnswer;
+            }
+
             // Track wrong answer
             dispatch({
                 type: 'ADD_WRONG_ANSWER',
                 payload: {
                     questionId: currentQuestion.id,
                     questionText: currentQuestion.text,
-                    correctAnswer: currentQuestion.correctAnswer,
-                    userAnswer: userAnswer,
+                    correctAnswerText: correctAnswerText,
+                    userAnswerText: userAnswerText,
                 }
             });
         }
@@ -91,23 +105,24 @@ export default function QuestionScreen() {
             stats.addXp(5);
         }
 
-        // Removed auto-popup logic for Know More
+        // Removed auto-advance. User must click Next.
+    };
 
-        // Move to next question or results after delay
-        setTimeout(() => {
-            if (state.currentQuestionIndex < state.questions.length - 1) {
-                dispatch({ type: 'NEXT_QUESTION' });
-            } else {
-                // Quiz completed - update stats
-                const percentage = Math.round(((state.correctAnswers + (isCorrect ? 1 : 0)) / state.questions.length) * 100);
-                if (state.selectedTopic) {
-                    stats.updateBestScore(state.selectedTopic.id, percentage);
-                }
-                stats.incrementQuizzes();
-                audio.playSuccess();
-                dispatch({ type: 'SET_SCREEN', screen: 'results' });
+    const handleNext = () => {
+        if (state.currentQuestionIndex < state.questions.length - 1) {
+            dispatch({ type: 'NEXT_QUESTION' });
+        } else {
+            // Quiz completed - update stats
+            // Calculate percentage based on correct answers
+            // Note: We might want to track current session correct answers accurately
+            const percentage = Math.round(((state.correctAnswers) / state.questions.length) * 100);
+            if (state.selectedTopic) {
+                stats.updateBestScore(state.selectedTopic.id, percentage);
             }
-        }, currentQuestion.knowMoreText ? 2000 : 500);
+            stats.incrementQuizzes();
+            audio.playSuccess();
+            dispatch({ type: 'SET_SCREEN', screen: 'results' });
+        }
     };
 
     const handleKnowMore = () => {
@@ -149,27 +164,44 @@ export default function QuestionScreen() {
             // Multiple Choice - show option buttons
             return (
                 <div className={styles.answersPanel}>
-                    {currentQuestion.answers.map((answer) => (
-                        <div
-                            key={answer.id}
-                            className={`${styles.answerCard} ${state.selectedAnswer === answer.id ? styles.answerSelected : ''}`}
-                            onClick={() => !state.questionAnswered && dispatch({ type: 'SELECT_ANSWER', answerId: answer.id })}
-                            role="radio"
-                            aria-checked={state.selectedAnswer === answer.id}
-                            tabIndex={0}
-                            onKeyPress={(e) => e.key === 'Enter' && !state.questionAnswered && dispatch({ type: 'SELECT_ANSWER', answerId: answer.id })}
-                        >
-                            <span className={`${styles.answerBadge} ${state.selectedAnswer === answer.id ? styles.answerBadgeSelected : ''}`}>
-                                {answer.id}
-                            </span>
-                            <span
-                                className={styles.answerText}
-                                style={{ color: state.selectedAnswer === answer.id ? '#fff' : undefined }}
+                    {currentQuestion.answers.map((answer) => {
+                        const isCorrect = answer.id === currentQuestion.correctAnswer;
+                        const isSelected = state.selectedAnswer === answer.id;
+
+                        let cardClass = styles.answerCard;
+                        if (isSelected) cardClass += ` ${styles.answerSelected}`;
+
+                        // Visual Feedback if answered
+                        if (state.questionAnswered) {
+                            if (isCorrect) {
+                                cardClass += ` ${styles.answerCorrect}`;
+                            } else if (isSelected && !isCorrect) {
+                                cardClass += ` ${styles.answerWrong}`;
+                            }
+                        }
+
+                        return (
+                            <div
+                                key={answer.id}
+                                className={cardClass}
+                                onClick={() => !state.questionAnswered && dispatch({ type: 'SELECT_ANSWER', answerId: answer.id })}
+                                role="radio"
+                                aria-checked={isSelected}
+                                tabIndex={0}
+                                onKeyPress={(e) => e.key === 'Enter' && !state.questionAnswered && dispatch({ type: 'SELECT_ANSWER', answerId: answer.id })}
                             >
-                                {answer.text}
-                            </span>
-                        </div>
-                    ))}
+                                <span className={`${styles.answerBadge} ${isSelected ? styles.answerBadgeSelected : ''}`}>
+                                    {answer.id}
+                                </span>
+                                <span
+                                    className={styles.answerText}
+                                    style={{ color: isSelected ? '#fff' : undefined }}
+                                >
+                                    {answer.text}
+                                </span>
+                            </div>
+                        );
+                    })}
                 </div>
             );
         } else {
@@ -219,6 +251,11 @@ export default function QuestionScreen() {
     const canSubmit = questionType === 'MCQ'
         ? state.selectedAnswer && !state.questionAnswered
         : state.typedAnswer.trim() && !state.questionAnswered;
+
+    // Determine Button Action
+    const buttonText = state.questionAnswered ? (state.currentQuestionIndex === state.questions.length - 1 ? 'FINISH' : 'NEXT') : 'SUBMIT';
+    const handleButtonClick = state.questionAnswered ? handleNext : handleSubmit;
+    const buttonDisabled = !state.questionAnswered && !canSubmit;
 
     const hasKnowMore = !!(currentQuestion?.knowMore || currentQuestion?.knowMoreText || currentQuestion?.youtubeUrl);
 
@@ -414,7 +451,7 @@ export default function QuestionScreen() {
                     {state.wrongAnswers.length > 0 && (
                         <button
                             className={styles.oopsButton}
-                            onClick={() => alert(`❌ Wrong Answers (${state.wrongAnswers.length}):\n\n${state.wrongAnswers.map((w, i) => `${i + 1}. ${w.questionText}\n   Your answer: ${w.userAnswer}\n   Correct: ${w.correctAnswer}`).join('\n\n')}`)}
+                            onClick={() => setShowOopsModal(true)}
                         >
                             <span className={styles.oopsIcon}>😅</span>
                             <span className={styles.helperText}>Oops ({state.wrongAnswers.length})</span>
@@ -436,14 +473,22 @@ export default function QuestionScreen() {
                     />
                 )}
 
-                {/* Right side - Submit */}
+                {/* Oops Modal */}
+                {showOopsModal && (
+                    <OopsModal
+                        wrongAnswers={state.wrongAnswers}
+                        onClose={() => setShowOopsModal(false)}
+                    />
+                )}
+
+                {/* Right side - Submit/Next */}
                 <button
                     className={styles.submitButton}
-                    style={{ opacity: canSubmit ? 1 : 0.5 }}
-                    onClick={handleSubmit}
-                    disabled={!canSubmit}
+                    style={{ opacity: buttonDisabled ? 0.5 : 1 }}
+                    onClick={handleButtonClick}
+                    disabled={buttonDisabled}
                 >
-                    <span>SUBMIT</span>
+                    <span>{buttonText}</span>
                     <span className={styles.submitArrow}>→</span>
                 </button>
             </div>

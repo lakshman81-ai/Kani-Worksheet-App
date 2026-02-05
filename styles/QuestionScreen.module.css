@@ -694,3 +694,35 @@
         font-size: 18px;
     }
 }
+/* Visual Feedback States */
+.answerCorrect {
+    background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%) !important;
+    border-color: transparent;
+    color: white;
+    box-shadow: 0 4px 20px rgba(76, 175, 80, 0.4);
+}
+
+.answerCorrect .answerBadge {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+}
+
+.answerCorrect .answerText {
+    color: white !important;
+}
+
+.answerWrong {
+    background: linear-gradient(135deg, #ef5350 0%, #c62828 100%) !important;
+    border-color: transparent;
+    color: white;
+    box-shadow: 0 4px 20px rgba(239, 83, 80, 0.4);
+}
+
+.answerWrong .answerBadge {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+}
+
+.answerWrong .answerText {
+    color: white !important;
+}
