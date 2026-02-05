@@ -6,7 +6,7 @@ import react from '@vitejs/plugin-react';
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, '.', '');
   return {
-    base: '/Kani-Worksheet-App/', // GitHub Pages base path
+    base: './', // GitHub Pages base path
     server: {
       port: 3005,
       host: '0.0.0.0',
