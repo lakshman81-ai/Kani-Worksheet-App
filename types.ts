@@ -44,6 +44,7 @@ export interface Question {
   is_fib?: boolean; // Indicates Fill in the Blank question
   fib_sentence?: string; // Sentence with blank (e.g., "The _____ is hot")
   multipleAnswers?: string; // Pipe-separated allowed answers (e.g., "red|blue|green")
+  difficulty?: 'Easy' | 'Medium' | 'Hard';
 }
 
 export interface Answer {

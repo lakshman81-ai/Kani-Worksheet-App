@@ -1,0 +1,9 @@
+
+> mcq-challenge@0.0.0 dev
+> vite --port 3000
+
+
+  VITE v6.4.1  ready in 396 ms
+
+  ➜  Local:   http://localhost:3000/Kani-Worksheet-App/
+  ➜  Network: http://192.168.0.2:3000/Kani-Worksheet-App/

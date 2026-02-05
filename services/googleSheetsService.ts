@@ -220,9 +220,9 @@ function detectQuestionType(
 
 /**
  * Parse CSV data from Google Sheets into Question objects
- * Column format: Question, Option 1, Option 2, Option 3, Option 4, Answer, Hint, Know More, Link, YouTube, Image, Type, Concept/Subtopic, Worksheet No
+ * Column format: Question, Option 1, Option 2, Option 3, Option 4, Answer, Hint, Know More, Link, YouTube, Image, Type, Concept/Subtopic, Worksheet No, Difficulty
  */
-function parseCSVToQuestions(csvText: string, topicId: string, filterWorksheetNumber?: number): Question[] {
+function parseCSVToQuestions(csvText: string, topicId: string, filterWorksheetNumber?: number, difficultyLevel?: string): Question[] {
   const lines = csvText.trim().split('\n');
   const questions: Question[] = [];
 
@@ -235,7 +235,7 @@ function parseCSVToQuestions(csvText: string, topicId: string, filterWorksheetNu
     const parts = parseCSVLine(line);
 
     if (parts.length >= 6) {
-      // Column positions: 0=Question, 1-4=Options, 5=Answer, 6=Hint, 7=Know More desc, 8=Link URL, 9=YouTube, 10=Image, 11=Type, 13=Worksheet No
+      // Column positions: 0=Question, 1-4=Options, 5=Answer, 6=Hint, 7=Know More desc, 8=Link URL, 9=YouTube, 10=Image, 11=Type, 13=Worksheet No, 14=Difficulty
       const questionText = parts[0];
       const option1 = parts[1];
       const option2 = parts[2];
@@ -249,6 +249,7 @@ function parseCSVToQuestions(csvText: string, topicId: string, filterWorksheetNu
       const imageUrl = parts[10] || '';
       const typeColumn = parts[11] || ''; // Column 11 has question type
       const worksheetNo = parts[13]; // Worksheet No is at column 14 (index 13)
+      const difficultyRaw = parts[14] || 'Medium'; // Default to Medium if missing
 
       // Parse worksheet number from the data
       const questionWorksheetNumber = worksheetNo ? parseInt(worksheetNo, 10) : undefined;
@@ -258,6 +259,24 @@ function parseCSVToQuestions(csvText: string, topicId: string, filterWorksheetNu
         if (questionWorksheetNumber !== filterWorksheetNumber) {
           continue; // Skip this question, it's from a different worksheet
         }
+      }
+
+      // Parse difficulty
+      let difficulty: 'Easy' | 'Medium' | 'Hard' = 'Medium';
+      const dLower = difficultyRaw.trim().toLowerCase();
+      if (dLower === 'easy' || dLower === 'low') difficulty = 'Easy';
+      else if (dLower === 'hard' || dLower === 'high') difficulty = 'Hard';
+
+      // If difficultyLevel is specified, filter
+      if (difficultyLevel && difficultyLevel !== 'None') {
+         let targetDiff = 'Medium';
+         const lLower = difficultyLevel.trim().toLowerCase();
+         if (lLower === 'easy' || lLower === 'low') targetDiff = 'Easy';
+         else if (lLower === 'hard' || lLower === 'high') targetDiff = 'Hard';
+
+         if (difficulty !== targetDiff) {
+            continue;
+         }
       }
 
       // Detect question type
@@ -307,6 +326,7 @@ function parseCSVToQuestions(csvText: string, topicId: string, filterWorksheetNu
         is_fib: typeInfo.is_fib,
         fib_sentence: typeInfo.fib_sentence,
         multipleAnswers: correctAnswerText.includes('|') ? correctAnswerText : undefined,
+        difficulty
       });
     }
   }
@@ -347,11 +367,11 @@ function parseCSVLine(line: string): string[] {
 /**
  * Fetch questions from Google Sheets OR Local CSV
  */
-export async function fetchQuestionsFromSheet(topic: Topic, localBasePath?: string): Promise<Question[]> {
+export async function fetchQuestionsFromSheet(topic: Topic, localBasePath?: string, difficultyLevel?: string): Promise<Question[]> {
   try {
     // 1. LOCAL MODE: If a local base path is provided, fetch from there
     if (localBasePath) {
-      console.log(`Loading local data for ${topic.name} from ${localBasePath}`);
+      console.log(`Loading local data for ${topic.name} from ${localBasePath} (Difficulty: ${difficultyLevel || 'All'})`);
       // Construct local path: /Worksheet 1/questions.csv
       // We might need to filter by topic if the CSV contains all topics, OR fetch a specific topic file.
       // Based on the plan, we are using a single "questions.csv" which likely has the "Concept/Topic" column.
@@ -370,7 +390,7 @@ export async function fetchQuestionsFromSheet(topic: Topic, localBasePath?: stri
       // Let's assume the local file contains QUESTIONS FOR THIS WORKSHEET.
 
       // We pass the topic.id to tag the questions correctly.
-      return parseCSVToQuestions(csvText, topic.id, undefined);
+      return parseCSVToQuestions(csvText, topic.id, undefined, difficultyLevel);
     }
 
     // 2. REMOTE MODE: Existing Google Sheets Logic
@@ -408,7 +428,7 @@ export async function fetchQuestionsFromSheet(topic: Topic, localBasePath?: stri
     const csvText = await response.text();
 
     // Parse questions and filter by worksheet number from "Worksheet No." column
-    const questions = parseCSVToQuestions(csvText, topic.id, topic.worksheetNumber);
+    const questions = parseCSVToQuestions(csvText, topic.id, topic.worksheetNumber, difficultyLevel);
 
     if (questions.length === 0) {
       throw new Error('No questions found in the sheet');

@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuiz } from '../../context/QuizContext';
 import { Topic } from '../../types';
-import { TopicConfig, WorksheetConfig } from '../../services/googleSheetsService';
+import { TopicConfig, WorksheetConfig, fetchQuestionsFromSheet } from '../../services/googleSheetsService';
 import styles from '../../styles/LandingScreen.module.css';
 import sharedStyles from '../../styles/shared.module.css';
 
@@ -21,12 +21,10 @@ export default function LandingScreen({
     onShowSettings
 }: LandingScreenProps) {
     const { state, dispatch, currentMascot, stats } = useQuiz();
+    const [questionCounts, setQuestionCounts] = useState<Record<string, number>>({});
 
     // Build topics list based on configured tiles
     const configuredTopics: Topic[] = [];
-
-    console.log('DEBUG: tileSettings:', state.tileSettings);
-    console.log('DEBUG: worksheetConfigs length:', worksheetConfigs.length);
 
     // Iterate 1-10 slots
     for (let i = 1; i <= 10; i++) {
@@ -34,15 +32,21 @@ export default function LandingScreen({
         if (wsId) {
             const wsConfig = worksheetConfigs.find(w => w.id === wsId);
             if (wsConfig) {
+                // Check if custom name exists
+                const customName = state.tileNames[i];
+                const displayName = customName && customName.trim()
+                    ? customName
+                    : wsConfig.name.replace(/^Worksheet \d+ - /, '');
+
                 // Construct a Topic object from the worksheet config
                 configuredTopics.push({
                     id: wsConfig.id, // Use worksheet ID as topic ID
-                    name: wsConfig.name.replace(/^Worksheet \d+ - /, ''), // Clean name
+                    name: displayName,
                     icon: wsConfig.icon || '📝',
                     color: wsConfig.color || '#607D8B',
-                    difficulty: 'Medium', // Default
+                    difficulty: state.globalDifficulty === 'None' ? 'Mixed' : state.globalDifficulty,
                     solved: 0,
-                    total: 0, // Should be fetched but 0 is fine for UI
+                    total: 0, // Will be updated by effect
                     sheetUrl: 'LOCAL',
                     worksheetNumber: parseInt(wsConfig.id.replace('ws', ''), 10)
                 });
@@ -53,8 +57,44 @@ export default function LandingScreen({
     // Use default topics if no tiles configured yet (first load fallback)
     const displayTopics = configuredTopics.length > 0 ? configuredTopics : topics;
 
-    // Calculate total quizzes available
-    const totalQuizzes = displayTopics.length * 10; // Approximate
+    // Load question counts
+    useEffect(() => {
+        const loadCounts = async () => {
+            const counts: Record<string, number> = {};
+            for (const topic of displayTopics) {
+                try {
+                    // Find local path
+                    let localBasePath = undefined;
+                    // Try to find matching worksheet config
+                    // Case 1: Topic IS the worksheet (configured tiles)
+                    let wsConfig = worksheetConfigs.find(w => w.id === topic.id);
+                    // Case 2: Topic maps to a worksheet (default topics)
+                    if (!wsConfig && topic.worksheetNumber) {
+                        wsConfig = worksheetConfigs.find(w => w.id === `ws${topic.worksheetNumber}`);
+                    }
+
+                    if (wsConfig) {
+                        localBasePath = wsConfig.path;
+                    }
+
+                    // Only fetch if we have a path (assuming local mostly)
+                    // If remote only, this might be slow, but we'll try
+                    const questions = await fetchQuestionsFromSheet(topic, localBasePath, state.globalDifficulty);
+                    counts[topic.id] = questions.length;
+                } catch (e) {
+                    console.error(`Failed to count questions for ${topic.name}`, e);
+                    counts[topic.id] = 0;
+                }
+            }
+            setQuestionCounts(counts);
+        };
+
+        loadCounts();
+    }, [state.tileSettings, state.globalDifficulty, worksheetConfigs, displayTopics.length]); // Re-run when settings change
+
+    // Calculate total quizzes available (sum of questions / 10)
+    const totalQuestions = Object.values(questionCounts).reduce((a, b) => a + b, 0);
+    const totalQuizzes = Math.ceil(totalQuestions / 10) || displayTopics.length; // Fallback
 
     // Get best score from stats
     const overallBestScore = Object.values(stats.stats.bestScores).length > 0
@@ -89,7 +129,23 @@ export default function LandingScreen({
                 >
                     <span className={sharedStyles.backArrow}>←</span>
                 </button>
-                <h1 className={styles.mainTitle}>Super Quiz!</h1>
+                <div style={{ textAlign: 'center' }}>
+                    <h1 className={styles.mainTitle} style={{ marginBottom: '0' }}>Super Quiz!</h1>
+                    {state.globalDifficulty !== 'None' && (
+                        <div style={{
+                            fontSize: '12px',
+                            color: '#FF9800',
+                            fontWeight: 'bold',
+                            background: 'rgba(0,0,0,0.3)',
+                            padding: '2px 8px',
+                            borderRadius: '10px',
+                            marginTop: '5px',
+                            display: 'inline-block'
+                        }}>
+                            DIFFICULTY: {state.globalDifficulty.toUpperCase()}
+                        </div>
+                    )}
+                </div>
                 <div style={{ display: 'flex', gap: '10px' }}>
                     <button
                         className={sharedStyles.profileButton}
@@ -169,7 +225,12 @@ export default function LandingScreen({
                                 {topic.difficulty}
                             </div>
                             <div className={styles.topicProgress}>
-                                <span>Best: {bestScore}%</span>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+                                    <span>Best: {bestScore}%</span>
+                                    <span style={{ fontSize: '11px', opacity: 0.8 }}>
+                                        {questionCounts[topic.id] !== undefined ? `${questionCounts[topic.id]} Qs` : '...'}
+                                    </span>
+                                </div>
                             </div>
                             {bestScore > 0 && (
                                 <div className={styles.progressBar}>
