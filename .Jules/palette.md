@@ -21,3 +21,9 @@
 **Learning:** When auditing a React/Vite project with TypeScript, explicitly checking for missing type definitions (like `@types/react`) is crucial even if the project builds via Vite (which may skip type checking). Vite's `build` command does not always run `tsc`.
 
 **Action:** Always run `npx tsc --noEmit` as part of the audit process. Ensure `env.d.ts` exists for CSS modules and `vite/client` types.
+
+## 2026-02-06 - Semantic Structure for Dynamic Forms
+
+**Learning:** When dynamically rendering form inputs (like switching between MCQ buttons and text inputs based on question type), it's easy to miss semantic wrappers. We found that MCQ options were rendered as accessible `role="radio"` buttons but lacked a parent `role="radiogroup"` wrapper, making the context unclear for screen readers. Similarly, dynamic text inputs often lacked specific `aria-labels`.
+
+**Action:** Ensure dynamic container elements carry appropriate grouping roles (e.g., `role="radiogroup"`) and that conditional inputs have explicit, context-aware `aria-label` attributes.
