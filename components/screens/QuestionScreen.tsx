@@ -163,7 +163,7 @@ export default function QuestionScreen() {
         if (questionType === 'MCQ') {
             // Multiple Choice - show option buttons
             return (
-                <div className={styles.answersPanel}>
+                <div className={styles.answersPanel} role="radiogroup" aria-label="Answer options">
                     {currentQuestion.answers.map((answer) => {
                         const isCorrect = answer.id === currentQuestion.correctAnswer;
                         const isSelected = state.selectedAnswer === answer.id;
@@ -226,9 +226,10 @@ export default function QuestionScreen() {
                             onKeyPress={(e) => e.key === 'Enter' && !state.questionAnswered && handleSubmit()}
                             disabled={state.questionAnswered}
                             autoFocus
+                            aria-label={questionType === 'FIB' ? "Fill in the blank answer" : "Type your answer"}
                         />
                         {state.questionAnswered && (
-                            <div className={styles.answerFeedback}>
+                            <div className={styles.answerFeedback} aria-live="polite">
                                 {checkAnswer(state.typedAnswer, currentQuestion.correctAnswer) ? (
                                     <span className={styles.correctFeedback}>✓ Correct!</span>
                                 ) : (
