@@ -482,6 +482,20 @@ export default function SettingsScreen({
                     currentTopic={null}
                 />
             )}
+
+            {/* Version Display */}
+            <div style={{
+                position: 'fixed',
+                bottom: '5px',
+                right: '10px',
+                fontSize: '10px',
+                color: 'rgba(255,255,255,0.3)',
+                fontFamily: 'monospace',
+                pointerEvents: 'none',
+                zIndex: 1000
+            }}>
+                ver.07-02-26 19:00
+            </div>
         </div>
     );
 }
