@@ -40,16 +40,30 @@ export interface Question {
   topic: string;
   worksheetNumber?: number; // Worksheet number from Google Sheets data
   // New fields for question types
-  questionType?: 'MCQ' | 'TTA' | 'FIB'; // Question format type
+  questionType?: 'MCQ' | 'TTA' | 'FIB' | 'MATCH'; // Question format type
   is_fib?: boolean; // Indicates Fill in the Blank question
   fib_sentence?: string; // Sentence with blank (e.g., "The _____ is hot")
   multipleAnswers?: string; // Pipe-separated allowed answers (e.g., "red|blue|green")
+  matchColumnA?: MatchItem[]; // For Match questions
+  matchColumnB?: MatchItem[];
+  matchCorrectPairs?: MatchPair[];
   difficulty?: 'Easy' | 'Medium' | 'Hard';
 }
 
 export interface Answer {
   id: string;
   text: string;
+}
+
+export interface MatchItem {
+  id: string;
+  text: string;
+  imageUrl?: string;
+}
+
+export interface MatchPair {
+  aId: string;
+  bId: string;
 }
 
 export interface WrongAnswer {

@@ -5,6 +5,7 @@ import styles from '../../styles/QuestionScreen.module.css';
 import sharedStyles from '../../styles/shared.module.css';
 import KnowMoreModal from '../modals/KnowMoreModal';
 import OopsModal from '../modals/OopsModal';
+import MatchFollowingQuestion from '../worksheet/MatchFollowingQuestion';
 
 export default function QuestionScreen() {
     const { state, dispatch, currentMascot, currentQuestion, stats } = useQuiz();
@@ -53,12 +54,26 @@ export default function QuestionScreen() {
             ? state.selectedAnswer
             : state.typedAnswer;
 
-        if (!userAnswer) return;
+        if (!userAnswer && questionType !== 'MATCH') return;
+        if (questionType === 'MATCH' && (!userAnswer || userAnswer === '{}')) return;
 
         // Check if answer is correct (forced wrong if used Know More before answering)
-        let isCorrect: boolean;
+        let isCorrect: boolean = false;
+
         if (questionType === 'MCQ') {
             isCorrect = userAnswer === currentQuestion.correctAnswer;
+        } else if (questionType === 'MATCH') {
+            try {
+                const mappings = JSON.parse(userAnswer);
+                const total = currentQuestion.matchCorrectPairs?.length || 0;
+                let correctCount = 0;
+                currentQuestion.matchCorrectPairs?.forEach(pair => {
+                    if (mappings[pair.aId] === pair.bId) correctCount++;
+                });
+                isCorrect = total > 0 && correctCount === total;
+            } catch (e) {
+                isCorrect = false;
+            }
         } else {
             // For TTA/FIB, check with multiple answer support
             isCorrect = checkAnswer(userAnswer, currentQuestion.correctAnswer);
@@ -79,6 +94,9 @@ export default function QuestionScreen() {
                 const correctOption = currentQuestion.answers.find(a => a.id === currentQuestion.correctAnswer);
                 userAnswerText = selectedOption ? selectedOption.text : userAnswer;
                 correctAnswerText = correctOption ? correctOption.text : currentQuestion.correctAnswer;
+            } else if (questionType === 'MATCH') {
+                userAnswerText = "Incorrect Match";
+                correctAnswerText = "Correct Matches";
             }
 
             // Track wrong answer
@@ -160,7 +178,16 @@ export default function QuestionScreen() {
 
     // Render answer input based on question type
     const renderAnswerSection = () => {
-        if (questionType === 'MCQ') {
+        if (questionType === 'MATCH') {
+            return (
+                <MatchFollowingQuestion
+                    question={currentQuestion}
+                    isSubmitted={state.questionAnswered}
+                    userMappingsStr={state.typedAnswer}
+                    onUpdate={(mappings) => dispatch({ type: 'SET_TYPED_ANSWER', answer: JSON.stringify(mappings) })}
+                />
+            );
+        } else if (questionType === 'MCQ') {
             // Multiple Choice - show option buttons
             return (
                 <div className={styles.answersPanel}>
@@ -250,6 +277,17 @@ export default function QuestionScreen() {
     // Check if submit button should be enabled
     const canSubmit = questionType === 'MCQ'
         ? state.selectedAnswer && !state.questionAnswered
+        : questionType === 'MATCH'
+        ? (() => {
+            try {
+                if (!state.typedAnswer) return false;
+                const mappings = JSON.parse(state.typedAnswer);
+                const keys = Object.keys(mappings);
+                // Require all items to be mapped? Or at least one?
+                // Plan said: "Check if all items are mapped"
+                return currentQuestion?.matchColumnA && keys.length === currentQuestion.matchColumnA.length;
+            } catch(e) { return false; }
+        })() && !state.questionAnswered
         : state.typedAnswer.trim() && !state.questionAnswered;
 
     // Determine Button Action
@@ -362,6 +400,7 @@ export default function QuestionScreen() {
                         <span className={styles.questionTypeBadge}>
                             {currentQuestion.questionType === 'FIB' ? '✏️ Fill in Blank' :
                                 currentQuestion.questionType === 'TTA' ? '⌨️ Type Answer' :
+                                currentQuestion.questionType === 'MATCH' ? '🧩 Match' :
                                     '📝 MCQ'}
                         </span>
                         {/* Zoom button removed */}
