@@ -18,7 +18,19 @@ export async function fetchWorksheets(): Promise<WorksheetConfig[]> {
   try {
     const response = await fetch(`${import.meta.env.BASE_URL}master_index.json`);
     if (!response.ok) throw new Error('Failed to load master index');
-    return await response.json();
+    const data = await response.json();
+
+    // Append Multi-Select worksheet config locally for access
+    data.push({
+        id: 'multi_response',
+        name: 'Multi-Select',
+        path: 'questions', // Base path, questions loaded via local: URL in topic
+        description: 'Practice multiple response questions',
+        icon: '☑️',
+        color: '#607d8b'
+    });
+
+    return data;
   } catch (error) {
     console.error('Error fetching worksheets:', error);
     return [];
@@ -130,6 +142,17 @@ export const TOPICS: Topic[] = [
     total: 60,
     sheetUrl: 'PLACEHOLDER',
     worksheetNumber: 7,
+  },
+  {
+    id: 'multi_response',
+    name: 'Multi-Select',
+    icon: '☑️',
+    color: '#607d8b',
+    difficulty: 'Medium',
+    solved: 0,
+    total: 3,
+    sheetUrl: 'local:questions/math-grade3-multiple-response.json',
+    worksheetNumber: 1,
   },
 ];
 
@@ -369,6 +392,17 @@ function parseCSVLine(line: string): string[] {
  */
 export async function fetchQuestionsFromSheet(topic: Topic, localBasePath?: string, difficultyLevel?: string): Promise<Question[]> {
   try {
+    // 0. LOCAL JSON MODE: Check if topic uses a local JSON file
+    if (topic.sheetUrl.startsWith('local:')) {
+      const path = topic.sheetUrl.replace('local:', '');
+      console.log(`Loading local JSON data for ${topic.name} from ${path}`);
+      const response = await fetch(import.meta.env.BASE_URL + path);
+      if (!response.ok) throw new Error(`HTTP ${response.status}: Failed to fetch local JSON`);
+      const data = await response.json();
+      // Ensure data is typed correctly or mapped if necessary
+      return data as Question[];
+    }
+
     // 1. LOCAL MODE: If a local base path is provided, fetch from there
     if (localBasePath) {
       console.log(`Loading local data for ${topic.name} from ${localBasePath} (Difficulty: ${difficultyLevel || 'All'})`);
@@ -518,6 +552,29 @@ function getSampleQuestions(topicId: string): Question[] {
         topic: 'spell',
       },
     ],
+    multi_response: [
+      {
+        id: "mq_sample_001",
+        type: "multiple_response", // In CSV/JSON 'type' field might be used
+        subject: "math",
+        topic: "even_numbers",
+        text: "Which numbers are EVEN? (Sample)",
+        questionType: "multiple_response",
+        options: [
+          { "id": "a", "text": "2", "isCorrect": true },
+          { "id": "b", "text": "3", "isCorrect": false },
+          { "id": "c", "text": "4", "isCorrect": true }
+        ],
+        correctAnswerIds: ["a", "c"],
+        feedback: {
+            allCorrect: "Correct!",
+            partial: "Almost!",
+            allWrong: "Try again."
+        },
+        correctAnswer: "A|C", // Fallback for types not fully supporting new fields? No, Question interface uses correctAnswerIds
+        answers: [] // Required by interface?
+      } as any // Cast to any to avoid strict type checks if sample data is slightly off
+    ]
   };
 
   return sampleQuestions[topicId] || [];

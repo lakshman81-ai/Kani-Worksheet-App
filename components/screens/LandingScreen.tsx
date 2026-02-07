@@ -38,6 +38,12 @@ export default function LandingScreen({
                     ? customName
                     : wsConfig.name.replace(/^Worksheet \d+ - /, '');
 
+                // Check if this tile maps to a default topic with special configuration (like JSON source)
+                const defaultTopic = topics.find(t => t.id === wsConfig.id);
+                const sheetUrl = defaultTopic?.sheetUrl.startsWith('local:')
+                    ? defaultTopic.sheetUrl
+                    : 'LOCAL';
+
                 // Construct a Topic object from the worksheet config
                 configuredTopics.push({
                     id: wsConfig.id, // Use worksheet ID as topic ID
@@ -47,7 +53,7 @@ export default function LandingScreen({
                     difficulty: state.globalDifficulty === 'None' ? 'Mixed' : state.globalDifficulty,
                     solved: 0,
                     total: 0, // Will be updated by effect
-                    sheetUrl: 'LOCAL',
+                    sheetUrl: sheetUrl,
                     worksheetNumber: parseInt(wsConfig.id.replace('ws', ''), 10)
                 });
             }
