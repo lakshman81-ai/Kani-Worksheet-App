@@ -184,9 +184,12 @@ function detectQuestionType(
   questionText: string,
   options: string[],
   typeColumn: string
-): { questionType: 'MCQ' | 'TTA' | 'FIB'; is_fib: boolean; fib_sentence?: string; correctAnswer?: string } {
+): { questionType: 'MCQ' | 'TTA' | 'FIB' | 'TF'; is_fib: boolean; fib_sentence?: string; correctAnswer?: string } {
   // Check explicit type column first
   const normalizedType = typeColumn?.trim().toUpperCase();
+  if (normalizedType === 'TF' || normalizedType === 'TRUE/FALSE' || normalizedType === 'TRUE_FALSE') {
+    return { questionType: 'TF', is_fib: false };
+  }
   if (normalizedType === 'FIB' || normalizedType === 'FILL IN THE BLANK') {
     return { questionType: 'FIB', is_fib: true };
   }
@@ -297,6 +300,12 @@ function parseCSVToQuestions(csvText: string, topicId: string, filterWorksheetNu
           }
         }
         finalCorrectAnswer = correctAnswerLetter;
+      } else if (typeInfo.questionType === 'TF') {
+        // For True/False, normalize answer to 'true' or 'false'
+        const ans = correctAnswerText.trim().toLowerCase();
+        if (ans === 't' || ans === 'true') finalCorrectAnswer = 'true';
+        else if (ans === 'f' || ans === 'false') finalCorrectAnswer = 'false';
+        else finalCorrectAnswer = ans;
       } else if (typeInfo.correctAnswer) {
         // For FIB detected from sentence, use extracted answer
         finalCorrectAnswer = typeInfo.correctAnswer;
@@ -318,6 +327,9 @@ function parseCSVToQuestions(csvText: string, topicId: string, filterWorksheetNu
           { id: 'B', text: option2 },
           { id: 'C', text: option3 },
           { id: 'D', text: option4 },
+        ] : typeInfo.questionType === 'TF' ? [
+          { id: 'true', text: 'True' },
+          { id: 'false', text: 'False' },
         ] : [],
         correctAnswer: finalCorrectAnswer,
         topic: topicId,

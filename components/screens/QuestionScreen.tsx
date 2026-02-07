@@ -4,13 +4,14 @@ import { useAudioFeedback } from '../../hooks/useAudioFeedback';
 import styles from '../../styles/QuestionScreen.module.css';
 import sharedStyles from '../../styles/shared.module.css';
 import KnowMoreModal from '../modals/KnowMoreModal';
-import OopsModal from '../modals/OopsModal';
+import ReviewModal from '../modals/ReviewModal';
+import TrueFalseQuestion from '../worksheet/TrueFalseQuestion';
 
 export default function QuestionScreen() {
     const { state, dispatch, currentMascot, currentQuestion, stats } = useQuiz();
     const audio = useAudioFeedback();
     const [showHint, setShowHint] = React.useState(false);
-    const [showOopsModal, setShowOopsModal] = React.useState(false);
+    const [showReviewModal, setShowReviewModal] = React.useState(false);
 
     // Reset hint visibility on new question
     React.useEffect(() => {
@@ -49,7 +50,7 @@ export default function QuestionScreen() {
         if (!currentQuestion) return;
 
         // Get the answer based on question type
-        const userAnswer = questionType === 'MCQ'
+        const userAnswer = (questionType === 'MCQ' || questionType === 'TF')
             ? state.selectedAnswer
             : state.typedAnswer;
 
@@ -59,6 +60,11 @@ export default function QuestionScreen() {
         let isCorrect: boolean;
         if (questionType === 'MCQ') {
             isCorrect = userAnswer === currentQuestion.correctAnswer;
+        } else if (questionType === 'TF') {
+            // Normalize for comparison
+            const correct = currentQuestion.correctAnswer.toLowerCase();
+            const selected = userAnswer.toLowerCase();
+            isCorrect = correct === selected;
         } else {
             // For TTA/FIB, check with multiple answer support
             isCorrect = checkAnswer(userAnswer, currentQuestion.correctAnswer);
@@ -74,9 +80,11 @@ export default function QuestionScreen() {
             let userAnswerText = userAnswer;
             let correctAnswerText = currentQuestion.correctAnswer;
 
-            if (questionType === 'MCQ') {
+            if (questionType === 'MCQ' || questionType === 'TF') {
                 const selectedOption = currentQuestion.answers.find(a => a.id === userAnswer);
-                const correctOption = currentQuestion.answers.find(a => a.id === currentQuestion.correctAnswer);
+                // For TF, correctAnswer might be 'true' or 'false', but options are 'true'/'false'
+                const correctOption = currentQuestion.answers.find(a => a.id.toLowerCase() === currentQuestion.correctAnswer.toLowerCase());
+
                 userAnswerText = selectedOption ? selectedOption.text : userAnswer;
                 correctAnswerText = correctOption ? correctOption.text : currentQuestion.correctAnswer;
             }
@@ -160,6 +168,17 @@ export default function QuestionScreen() {
 
     // Render answer input based on question type
     const renderAnswerSection = () => {
+        if (questionType === 'TF') {
+            return (
+                <TrueFalseQuestion
+                    question={currentQuestion}
+                    selectedAnswer={state.selectedAnswer}
+                    isSubmitted={state.questionAnswered}
+                    onAnswer={(answerId) => dispatch({ type: 'SELECT_ANSWER', answerId })}
+                />
+            );
+        }
+
         if (questionType === 'MCQ') {
             // Multiple Choice - show option buttons
             return (
@@ -248,7 +267,7 @@ export default function QuestionScreen() {
     };
 
     // Check if submit button should be enabled
-    const canSubmit = questionType === 'MCQ'
+    const canSubmit = (questionType === 'MCQ' || questionType === 'TF')
         ? state.selectedAnswer && !state.questionAnswered
         : state.typedAnswer.trim() && !state.questionAnswered;
 
@@ -362,6 +381,7 @@ export default function QuestionScreen() {
                         <span className={styles.questionTypeBadge}>
                             {currentQuestion.questionType === 'FIB' ? '✏️ Fill in Blank' :
                                 currentQuestion.questionType === 'TTA' ? '⌨️ Type Answer' :
+                                currentQuestion.questionType === 'TF' ? '⚖️ True / False' :
                                     '📝 MCQ'}
                         </span>
                         {/* Zoom button removed */}
@@ -451,10 +471,11 @@ export default function QuestionScreen() {
                     {state.wrongAnswers.length > 0 && (
                         <button
                             className={styles.oopsButton}
-                            onClick={() => setShowOopsModal(true)}
+                            onClick={() => setShowReviewModal(true)}
+                            title="Review Mistakes"
                         >
-                            <span className={styles.oopsIcon}>😅</span>
-                            <span className={styles.helperText}>Oops ({state.wrongAnswers.length})</span>
+                            <span className={styles.oopsIcon}>🎓</span>
+                            <span className={styles.helperText}>Review ({state.wrongAnswers.length})</span>
                         </button>
                     )}
                 </div>
@@ -473,11 +494,11 @@ export default function QuestionScreen() {
                     />
                 )}
 
-                {/* Oops Modal */}
-                {showOopsModal && (
-                    <OopsModal
+                {/* Review Modal */}
+                {showReviewModal && (
+                    <ReviewModal
                         wrongAnswers={state.wrongAnswers}
-                        onClose={() => setShowOopsModal(false)}
+                        onClose={() => setShowReviewModal(false)}
                     />
                 )}
 

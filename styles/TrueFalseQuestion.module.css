@@ -1,0 +1,118 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    align-items: center;
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.optionsContainer {
+    display: flex;
+    gap: 20px;
+    width: 100%;
+}
+
+.optionCard {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 30px 20px;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 3px solid rgba(255, 255, 255, 0.2);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    user-select: none;
+    min-height: 150px;
+    position: relative;
+    overflow: hidden;
+}
+
+.optionCard:hover:not(.disabled) {
+    transform: translateY(-5px);
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.4);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+}
+
+.selected {
+    border-color: #fff;
+    background: rgba(255, 255, 255, 0.25);
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+}
+
+.correct {
+    background: linear-gradient(135deg, rgba(76, 175, 80, 0.2), rgba(76, 175, 80, 0.4));
+    border-color: #4caf50;
+    box-shadow: 0 0 20px rgba(76, 175, 80, 0.4);
+}
+
+.wrong {
+    background: linear-gradient(135deg, rgba(244, 67, 54, 0.2), rgba(244, 67, 54, 0.4));
+    border-color: #f44336;
+    opacity: 0.8;
+}
+
+.disabled {
+    cursor: default;
+    opacity: 0.7;
+}
+
+.icon {
+    font-size: 48px;
+    margin-bottom: 15px;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+}
+
+.text {
+    font-size: 24px;
+    font-weight: 800;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+.feedbackIcon {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 24px;
+    background: rgba(0,0,0,0.2);
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes popIn {
+    from { transform: scale(0); }
+    to { transform: scale(1); }
+}
+
+@media (max-width: 600px) {
+    .optionsContainer {
+        flex-direction: row; /* Keep side-by-side even on mobile if space permits, or stack */
+        gap: 10px;
+    }
+
+    .optionCard {
+        padding: 20px 10px;
+        min-height: 120px;
+    }
+
+    .icon {
+        font-size: 36px;
+    }
+
+    .text {
+        font-size: 18px;
+    }
+}
