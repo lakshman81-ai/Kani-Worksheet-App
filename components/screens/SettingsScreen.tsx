@@ -482,6 +482,18 @@ export default function SettingsScreen({
                     currentTopic={null}
                 />
             )}
+            <div style={{
+                position: 'fixed',
+                bottom: '5px',
+                right: '5px',
+                color: 'rgba(255, 255, 255, 0.2)',
+                fontSize: '10px',
+                fontFamily: 'monospace',
+                pointerEvents: 'none',
+                zIndex: 9999
+            }}>
+                ver.21-02-25
+            </div>
         </div>
     );
 }

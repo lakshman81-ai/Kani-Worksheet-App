@@ -1,0 +1,131 @@
+.sequenceQuestionContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.sequenceItemsList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.sequenceItem {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  transition: all 0.3s ease;
+}
+
+.sequenceItem:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateX(5px);
+}
+
+.sequenceItem.correct {
+  border-color: #4caf50;
+  background: rgba(76, 175, 80, 0.1);
+}
+
+.sequenceItem.incorrect {
+  border-color: #f44336;
+  background: rgba(244, 67, 54, 0.1);
+}
+
+.positionInputContainer {
+  flex-shrink: 0;
+}
+
+.positionInput {
+  width: 50px;
+  height: 50px;
+  font-size: 1.25rem;
+  font-weight: 700;
+  text-align: center;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.2);
+  color: #fff;
+  transition: all 0.2s ease;
+}
+
+.positionInput:focus {
+  outline: none;
+  border-color: #ffd700;
+  box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.2);
+}
+
+.positionInput:disabled {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.1);
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* Remove spinner arrows */
+.positionInput::-webkit-inner-spin-button,
+.positionInput::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.positionInput[type=number] {
+  -moz-appearance: textfield;
+}
+
+.itemContent {
+  flex: 1;
+  font-size: 1.1rem;
+  color: #fff;
+  line-height: 1.5;
+}
+
+.correctPositionHint {
+  padding: 0.5rem 1rem;
+  background: rgba(76, 175, 80, 0.2);
+  border-radius: 6px;
+  font-size: 0.9rem;
+  color: #4caf50;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.errorFeedback {
+  color: #ff5252;
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+  text-align: center;
+  background: rgba(255, 0, 0, 0.1);
+  padding: 8px;
+  border-radius: 8px;
+}
+
+/* Mobile responsive */
+@media (max-width: 640px) {
+  .sequenceItem {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .positionInput {
+    width: 40px;
+    height: 40px;
+    font-size: 1.1rem;
+  }
+
+  .itemContent {
+    font-size: 1rem;
+  }
+
+  .correctPositionHint {
+    width: 100%;
+    text-align: center;
+  }
+}

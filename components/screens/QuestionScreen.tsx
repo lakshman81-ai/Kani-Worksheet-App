@@ -5,6 +5,7 @@ import styles from '../../styles/QuestionScreen.module.css';
 import sharedStyles from '../../styles/shared.module.css';
 import KnowMoreModal from '../modals/KnowMoreModal';
 import OopsModal from '../modals/OopsModal';
+import SequenceQuestion, { validateSequence, getSequenceString } from '../worksheet/SequenceQuestion';
 
 export default function QuestionScreen() {
     const { state, dispatch, currentMascot, currentQuestion, stats } = useQuiz();
@@ -59,6 +60,17 @@ export default function QuestionScreen() {
         let isCorrect: boolean;
         if (questionType === 'MCQ') {
             isCorrect = userAnswer === currentQuestion.correctAnswer;
+        } else if (questionType === 'SEQUENCE') {
+            try {
+                const parsed = JSON.parse(userAnswer);
+                const seqString = getSequenceString(parsed, currentQuestion.answers);
+                // Compare seqString (e.g. "2,4,1,3") with currentQuestion.correctAnswer
+                // Normalize spaces
+                const target = currentQuestion.correctAnswer.replace(/\s/g, '');
+                isCorrect = seqString === target;
+            } catch {
+                isCorrect = false;
+            }
         } else {
             // For TTA/FIB, check with multiple answer support
             isCorrect = checkAnswer(userAnswer, currentQuestion.correctAnswer);
@@ -79,6 +91,13 @@ export default function QuestionScreen() {
                 const correctOption = currentQuestion.answers.find(a => a.id === currentQuestion.correctAnswer);
                 userAnswerText = selectedOption ? selectedOption.text : userAnswer;
                 correctAnswerText = correctOption ? correctOption.text : currentQuestion.correctAnswer;
+            } else if (questionType === 'SEQUENCE') {
+                 try {
+                    const parsed = JSON.parse(userAnswer);
+                    userAnswerText = getSequenceString(parsed, currentQuestion.answers);
+                 } catch {
+                    userAnswerText = "Invalid Sequence";
+                 }
             }
 
             // Track wrong answer
@@ -160,7 +179,18 @@ export default function QuestionScreen() {
 
     // Render answer input based on question type
     const renderAnswerSection = () => {
-        if (questionType === 'MCQ') {
+        if (questionType === 'SEQUENCE') {
+             return (
+                <div className={styles.answersPanel}>
+                     <SequenceQuestion
+                        question={currentQuestion}
+                        onUpdate={(answer) => dispatch({ type: 'SET_TYPED_ANSWER', answer })}
+                        isSubmitted={state.questionAnswered}
+                        typedAnswer={state.typedAnswer}
+                     />
+                </div>
+            );
+        } else if (questionType === 'MCQ') {
             // Multiple Choice - show option buttons
             return (
                 <div className={styles.answersPanel}>
@@ -362,6 +392,7 @@ export default function QuestionScreen() {
                         <span className={styles.questionTypeBadge}>
                             {currentQuestion.questionType === 'FIB' ? '✏️ Fill in Blank' :
                                 currentQuestion.questionType === 'TTA' ? '⌨️ Type Answer' :
+                                currentQuestion.questionType === 'SEQUENCE' ? '🔢 Sequence' :
                                     '📝 MCQ'}
                         </span>
                         {/* Zoom button removed */}
