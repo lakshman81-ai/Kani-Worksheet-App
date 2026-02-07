@@ -5,6 +5,8 @@ import styles from '../../styles/QuestionScreen.module.css';
 import sharedStyles from '../../styles/shared.module.css';
 import KnowMoreModal from '../modals/KnowMoreModal';
 import OopsModal from '../modals/OopsModal';
+import MultipleResponseQuestion from '../worksheet/MultipleResponseQuestion';
+import { validateWithPartialCredit } from '../../utils/questionValidation';
 
 export default function QuestionScreen() {
     const { state, dispatch, currentMascot, currentQuestion, stats } = useQuiz();
@@ -48,56 +50,98 @@ export default function QuestionScreen() {
     const handleSubmit = () => {
         if (!currentQuestion) return;
 
-        // Get the answer based on question type
-        const userAnswer = questionType === 'MCQ'
-            ? state.selectedAnswer
-            : state.typedAnswer;
+        let isCorrect = false;
+        let xpEarned = 0;
 
-        if (!userAnswer) return;
+        if (questionType === 'multiple_response') {
+            const result = validateWithPartialCredit(state.multiSelectedAnswers, currentQuestion.correctAnswerIds || []);
+            isCorrect = result.isFullyCorrect;
+            xpEarned = Math.round(result.score * 5); // Max 5 XP like others
 
-        // Check if answer is correct (forced wrong if used Know More before answering)
-        let isCorrect: boolean;
-        if (questionType === 'MCQ') {
-            isCorrect = userAnswer === currentQuestion.correctAnswer;
-        } else {
-            // For TTA/FIB, check with multiple answer support
-            isCorrect = checkAnswer(userAnswer, currentQuestion.correctAnswer);
-        }
-
-        // Play audio feedback
-        if (isCorrect) {
-            audio.playCorrect();
-        } else {
-            audio.playIncorrect();
-
-            // Prepare text for wrong answer log
-            let userAnswerText = userAnswer;
-            let correctAnswerText = currentQuestion.correctAnswer;
-
-            if (questionType === 'MCQ') {
-                const selectedOption = currentQuestion.answers.find(a => a.id === userAnswer);
-                const correctOption = currentQuestion.answers.find(a => a.id === currentQuestion.correctAnswer);
-                userAnswerText = selectedOption ? selectedOption.text : userAnswer;
-                correctAnswerText = correctOption ? correctOption.text : currentQuestion.correctAnswer;
+            if (isCorrect) {
+                audio.playCorrect();
+            } else if (result.score > 0) {
+                // Play success for partial, but mark as wrong for stats if not fully correct?
+                // Or maybe play a "neutral" sound? Re-using incorrect for now to indicate "not quite right"
+                audio.playIncorrect();
+            } else {
+                audio.playIncorrect();
             }
 
-            // Track wrong answer
-            dispatch({
-                type: 'ADD_WRONG_ANSWER',
-                payload: {
-                    questionId: currentQuestion.id,
-                    questionText: currentQuestion.text,
-                    correctAnswerText: correctAnswerText,
-                    userAnswerText: userAnswerText,
+            if (!isCorrect) {
+                // Track wrong answer
+                 const selectedTexts = currentQuestion.options
+                    ?.filter(opt => state.multiSelectedAnswers.includes(opt.id))
+                    .map(opt => opt.text)
+                    .join(', ');
+                 const correctTexts = currentQuestion.options
+                    ?.filter(opt => currentQuestion.correctAnswerIds?.includes(opt.id))
+                    .map(opt => opt.text)
+                    .join(', ');
+
+                dispatch({
+                    type: 'ADD_WRONG_ANSWER',
+                    payload: {
+                        questionId: currentQuestion.id,
+                        questionText: currentQuestion.text,
+                        correctAnswerText: correctTexts || 'Unknown',
+                        userAnswerText: selectedTexts || '(None)',
+                    }
+                });
+            }
+        } else {
+            // Get the answer based on question type
+            const userAnswer = questionType === 'MCQ'
+                ? state.selectedAnswer
+                : state.typedAnswer;
+
+            if (!userAnswer) return;
+
+            // Check if answer is correct (forced wrong if used Know More before answering)
+            if (questionType === 'MCQ') {
+                isCorrect = userAnswer === currentQuestion.correctAnswer;
+            } else {
+                // For TTA/FIB, check with multiple answer support
+                isCorrect = checkAnswer(userAnswer, currentQuestion.correctAnswer);
+            }
+
+            xpEarned = isCorrect ? 5 : 0;
+
+            // Play audio feedback
+            if (isCorrect) {
+                audio.playCorrect();
+            } else {
+                audio.playIncorrect();
+
+                // Prepare text for wrong answer log
+                let userAnswerText = userAnswer;
+                let correctAnswerText = currentQuestion.correctAnswer;
+
+                if (questionType === 'MCQ') {
+                    const selectedOption = currentQuestion.answers.find(a => a.id === userAnswer);
+                    const correctOption = currentQuestion.answers.find(a => a.id === currentQuestion.correctAnswer);
+                    userAnswerText = selectedOption ? selectedOption.text : userAnswer;
+                    correctAnswerText = correctOption ? correctOption.text : currentQuestion.correctAnswer;
                 }
-            });
+
+                // Track wrong answer
+                dispatch({
+                    type: 'ADD_WRONG_ANSWER',
+                    payload: {
+                        questionId: currentQuestion.id,
+                        questionText: currentQuestion.text,
+                        correctAnswerText: correctAnswerText,
+                        userAnswerText: userAnswerText,
+                    }
+                });
+            }
         }
 
         // Submit answer
         dispatch({
             type: 'SUBMIT_ANSWER',
             isCorrect,
-            xpEarned: isCorrect ? 5 : 0
+            xpEarned
         });
 
         // Update stats
@@ -160,7 +204,18 @@ export default function QuestionScreen() {
 
     // Render answer input based on question type
     const renderAnswerSection = () => {
-        if (questionType === 'MCQ') {
+        if (questionType === 'multiple_response') {
+            return (
+                <div className={styles.answersPanel} style={{ display: 'block' }}>
+                    <MultipleResponseQuestion
+                        question={currentQuestion}
+                        selectedIds={state.multiSelectedAnswers}
+                        isSubmitted={state.questionAnswered}
+                        onToggle={(id) => !state.questionAnswered && dispatch({ type: 'TOGGLE_MULTI_ANSWER', answerId: id })}
+                    />
+                </div>
+            );
+        } else if (questionType === 'MCQ') {
             // Multiple Choice - show option buttons
             return (
                 <div className={styles.answersPanel}>
@@ -250,7 +305,9 @@ export default function QuestionScreen() {
     // Check if submit button should be enabled
     const canSubmit = questionType === 'MCQ'
         ? state.selectedAnswer && !state.questionAnswered
-        : state.typedAnswer.trim() && !state.questionAnswered;
+        : questionType === 'multiple_response'
+            ? state.multiSelectedAnswers.length > 0 && !state.questionAnswered
+            : state.typedAnswer.trim() && !state.questionAnswered;
 
     // Determine Button Action
     const buttonText = state.questionAnswered ? (state.currentQuestionIndex === state.questions.length - 1 ? 'FINISH' : 'NEXT') : 'SUBMIT';
@@ -362,6 +419,7 @@ export default function QuestionScreen() {
                         <span className={styles.questionTypeBadge}>
                             {currentQuestion.questionType === 'FIB' ? '✏️ Fill in Blank' :
                                 currentQuestion.questionType === 'TTA' ? '⌨️ Type Answer' :
+                                    currentQuestion.questionType === 'multiple_response' ? '☑️ Checkboxes' :
                                     '📝 MCQ'}
                         </span>
                         {/* Zoom button removed */}

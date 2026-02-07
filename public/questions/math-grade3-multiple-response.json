@@ -1,0 +1,71 @@
+[
+  {
+    "id": "mq_001",
+    "type": "multiple_response",
+    "subject": "math",
+    "grade": 3,
+    "topic": "even_numbers",
+    "text": "Which numbers are EVEN?",
+    "questionType": "multiple_response",
+    "options": [
+      { "id": "a", "text": "12", "isCorrect": true },
+      { "id": "b", "text": "17", "isCorrect": false },
+      { "id": "c", "text": "24", "isCorrect": true },
+      { "id": "d", "text": "31", "isCorrect": false },
+      { "id": "e", "text": "48", "isCorrect": true }
+    ],
+    "correctAnswerIds": ["a", "c", "e"],
+    "feedback": {
+      "allCorrect": "Great job! You found all the even numbers.",
+      "partial": "You got some right. Remember: even numbers end in 0, 2, 4, 6, or 8.",
+      "allWrong": "Let's try again. Even numbers can be divided by 2 with no remainder."
+    },
+    "difficulty": "Easy"
+  },
+  {
+    "id": "mq_002",
+    "type": "multiple_response",
+    "subject": "english",
+    "grade": 3,
+    "topic": "nouns",
+    "text": "Select all the NOUNS in this list:",
+    "questionType": "multiple_response",
+    "options": [
+      { "id": "a", "text": "Run", "isCorrect": false },
+      { "id": "b", "text": "Cat", "isCorrect": true },
+      { "id": "c", "text": "Happy", "isCorrect": false },
+      { "id": "d", "text": "School", "isCorrect": true },
+      { "id": "e", "text": "Jump", "isCorrect": false }
+    ],
+    "correctAnswerIds": ["b", "d"],
+    "feedback": {
+      "allCorrect": "Correct! Nouns are people, places, or things.",
+      "partial": "Close! Remember, nouns name a person, place, or thing.",
+      "allWrong": "Try again. Look for words that name things."
+    },
+    "difficulty": "Medium"
+  },
+  {
+      "id": "mq_003",
+      "type": "multiple_response",
+      "subject": "math",
+      "grade": 3,
+      "topic": "fractions",
+      "text": "Which fractions are equal to 1/2?",
+      "questionType": "multiple_response",
+      "options": [
+        { "id": "a", "text": "2/4", "isCorrect": true },
+        { "id": "b", "text": "3/6", "isCorrect": true },
+        { "id": "c", "text": "1/3", "isCorrect": false },
+        { "id": "d", "text": "4/8", "isCorrect": true },
+        { "id": "e", "text": "2/3", "isCorrect": false }
+      ],
+      "correctAnswerIds": ["a", "b", "d"],
+      "feedback": {
+        "allCorrect": "Excellent! You identified all equivalent fractions.",
+        "partial": "You found some equivalent fractions!",
+        "allWrong": "Review equivalent fractions. Multiply top and bottom by the same number."
+      },
+      "difficulty": "Hard"
+    }
+]

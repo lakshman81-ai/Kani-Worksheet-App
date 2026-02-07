@@ -23,7 +23,14 @@ interface QuizState {
     questions: Question[];
     selectedAnswer: string | null;
     typedAnswer: string; // For TTA/FIB question types
-    userAnswers: { questionIndex: number; selectedAnswer: string | null; typedAnswer: string; isCorrect: boolean }[];
+    multiSelectedAnswers: string[]; // For multiple_response question type
+    userAnswers: {
+        questionIndex: number;
+        selectedAnswer: string | null;
+        typedAnswer: string;
+        multiSelectedAnswers: string[];
+        isCorrect: boolean
+    }[];
     correctAnswers: number;
     skippedCount: number; // Track skipped questions
     wrongAnswers: WrongAnswer[]; // Track wrong answers for review
@@ -53,6 +60,7 @@ type QuizAction =
     | { type: 'SET_QUESTIONS'; questions: Question[] }
     | { type: 'SET_LOADING'; isLoading: boolean }
     | { type: 'SELECT_ANSWER'; answerId: string }
+    | { type: 'TOGGLE_MULTI_ANSWER'; answerId: string }
     | { type: 'SUBMIT_ANSWER'; isCorrect: boolean; xpEarned: number }
     | { type: 'NEXT_QUESTION' }
     | { type: 'PREVIOUS_QUESTION' }
@@ -83,6 +91,7 @@ const initialState: QuizState = {
     questions: [],
     selectedAnswer: null,
     typedAnswer: '',
+    multiSelectedAnswers: [],
     userAnswers: [],
     correctAnswers: 0,
     skippedCount: 0,
@@ -102,6 +111,7 @@ const initialState: QuizState = {
         5: 'ws5', // Punctuation
         6: 'ws6', // Poetry
         7: 'ws7', // Fractions
+        8: 'multi_response', // Multi-Select
     },
     currentWorksheetName: undefined,
     globalDifficulty: 'None',
@@ -135,6 +145,7 @@ function quizReducer(state: QuizState, action: QuizAction): QuizState {
                 userAnswers: [],
                 selectedAnswer: null,
                 typedAnswer: '',
+                multiSelectedAnswers: [],
                 questionAnswered: false,
                 usedKnowMoreBeforeAnswer: false,
                 showKnowMorePopup: false,
@@ -144,6 +155,13 @@ function quizReducer(state: QuizState, action: QuizAction): QuizState {
             return { ...state, isLoadingQuestions: action.isLoading };
         case 'SELECT_ANSWER':
             return { ...state, selectedAnswer: action.answerId };
+        case 'TOGGLE_MULTI_ANSWER': {
+            const current = state.multiSelectedAnswers;
+            const newSelection = current.includes(action.answerId)
+                ? current.filter(id => id !== action.answerId)
+                : [...current, action.answerId];
+            return { ...state, multiSelectedAnswers: newSelection };
+        }
         case 'SUBMIT_ANSWER':
             return {
                 ...state,
@@ -156,6 +174,7 @@ function quizReducer(state: QuizState, action: QuizAction): QuizState {
                         questionIndex: state.currentQuestionIndex,
                         selectedAnswer: state.selectedAnswer,
                         typedAnswer: state.typedAnswer,
+                        multiSelectedAnswers: state.multiSelectedAnswers,
                         isCorrect: action.isCorrect,
                     },
                 ],
@@ -168,6 +187,7 @@ function quizReducer(state: QuizState, action: QuizAction): QuizState {
                 currentQuestionIndex: newIndex,
                 selectedAnswer: saved?.selectedAnswer || null,
                 typedAnswer: saved?.typedAnswer || '',
+                multiSelectedAnswers: saved?.multiSelectedAnswers || [],
                 questionAnswered: !!saved,
                 usedKnowMoreBeforeAnswer: false,
                 showKnowMorePopup: false,
@@ -181,6 +201,7 @@ function quizReducer(state: QuizState, action: QuizAction): QuizState {
                 currentQuestionIndex: newIndex,
                 selectedAnswer: saved?.selectedAnswer || null,
                 typedAnswer: saved?.typedAnswer || '',
+                multiSelectedAnswers: saved?.multiSelectedAnswers || [],
                 questionAnswered: !!saved,
                 usedKnowMoreBeforeAnswer: false,
                 showKnowMorePopup: false,
@@ -192,6 +213,7 @@ function quizReducer(state: QuizState, action: QuizAction): QuizState {
                 currentQuestionIndex: state.currentQuestionIndex + 1,
                 selectedAnswer: null,
                 typedAnswer: '',
+                multiSelectedAnswers: [],
                 skippedCount: state.skippedCount + 1,
                 questionAnswered: false,
                 usedKnowMoreBeforeAnswer: false,
@@ -223,6 +245,7 @@ function quizReducer(state: QuizState, action: QuizAction): QuizState {
                 questions: [],
                 selectedAnswer: null,
                 typedAnswer: '',
+                multiSelectedAnswers: [],
                 userAnswers: [],
                 correctAnswers: 0,
                 skippedCount: 0,

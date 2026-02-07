@@ -40,11 +40,20 @@ export interface Question {
   topic: string;
   worksheetNumber?: number; // Worksheet number from Google Sheets data
   // New fields for question types
-  questionType?: 'MCQ' | 'TTA' | 'FIB'; // Question format type
+  questionType?: 'MCQ' | 'TTA' | 'FIB' | 'multiple_response'; // Question format type
   is_fib?: boolean; // Indicates Fill in the Blank question
   fib_sentence?: string; // Sentence with blank (e.g., "The _____ is hot")
   multipleAnswers?: string; // Pipe-separated allowed answers (e.g., "red|blue|green")
   difficulty?: 'Easy' | 'Medium' | 'Hard';
+
+  // Fields for Multiple Response questions
+  options?: { id: string; text: string; isCorrect: boolean }[];
+  correctAnswerIds?: string[];
+  feedback?: {
+    allCorrect: string;
+    partial: string;
+    allWrong: string;
+  };
 }
 
 export interface Answer {
