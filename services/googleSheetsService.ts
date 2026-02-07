@@ -1,4 +1,4 @@
-import type { Question, Topic } from '../types';
+import type { Question, Topic, MatchItem, MatchPair } from '../types';
 
 // Master configuration sheet URL
 export const MASTER_CONFIG_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQUv4zA167WG6griM00FRz-MTUm-v8o0687XWoWk_VbJ4PP-X5AyF-joKVu5gTVLu89rWJzvzvZnP55/pub?output=csv';
@@ -184,9 +184,13 @@ function detectQuestionType(
   questionText: string,
   options: string[],
   typeColumn: string
-): { questionType: 'MCQ' | 'TTA' | 'FIB'; is_fib: boolean; fib_sentence?: string; correctAnswer?: string } {
+): { questionType: 'MCQ' | 'TTA' | 'FIB' | 'MATCH'; is_fib: boolean; fib_sentence?: string; correctAnswer?: string } {
   // Check explicit type column first
   const normalizedType = typeColumn?.trim().toUpperCase();
+  console.log('Detecting Type:', { typeColumn, normalizedType });
+  if (normalizedType === 'MATCH') {
+    return { questionType: 'MATCH', is_fib: false };
+  }
   if (normalizedType === 'FIB' || normalizedType === 'FILL IN THE BLANK') {
     return { questionType: 'FIB', is_fib: true };
   }
@@ -222,7 +226,7 @@ function detectQuestionType(
  * Parse CSV data from Google Sheets into Question objects
  * Column format: Question, Option 1, Option 2, Option 3, Option 4, Answer, Hint, Know More, Link, YouTube, Image, Type, Concept/Subtopic, Worksheet No, Difficulty
  */
-function parseCSVToQuestions(csvText: string, topicId: string, filterWorksheetNumber?: number, difficultyLevel?: string): Question[] {
+export function parseCSVToQuestions(csvText: string, topicId: string, filterWorksheetNumber?: number, difficultyLevel?: string): Question[] {
   const lines = csvText.trim().split('\n');
   const questions: Question[] = [];
 
@@ -286,8 +290,51 @@ function parseCSVToQuestions(csvText: string, topicId: string, filterWorksheetNu
       // Determine correct answer
       let correctAnswerLetter = 'A';
       let finalCorrectAnswer = correctAnswerText;
+      let matchColumnA: MatchItem[] = [];
+      let matchColumnB: MatchItem[] = [];
+      let matchCorrectPairs: MatchPair[] = [];
 
-      if (typeInfo.questionType === 'MCQ') {
+      if (typeInfo.questionType === 'MATCH') {
+        // Parse Match Data
+        // Option 1: Column A items separated by |
+        // Option 2: Column B items separated by |
+        const colAItems = option1.split('|').map(s => s.trim()).filter(s => s);
+        const colBItems = option2.split('|').map(s => s.trim()).filter(s => s);
+
+        matchColumnA = colAItems.map((text, idx) => ({
+          id: `A${idx + 1}`,
+          text: text
+        }));
+
+        matchColumnB = colBItems.map((text, idx) => ({
+          id: `B${idx + 1}`,
+          text: text
+        }));
+
+        // Parse correct pairs from Answer column (e.g. "Cat:Meow|Dog:Bark")
+        const pairs = correctAnswerText.split('|').map(s => s.trim()).filter(s => s);
+        matchCorrectPairs = pairs.map(pair => {
+          const parts = pair.split(':').map(s => s.trim());
+          if (parts.length < 2) return null;
+          const partA = parts[0];
+          const partB = parts[1];
+
+          // Find ID for partA in matchColumnA
+          // Check for exact text match or ID match (A1, A2)
+          let itemA = matchColumnA.find(i => i.text === partA || i.id === partA);
+          let itemB = matchColumnB.find(i => i.text === partB || i.id === partB);
+
+          // Fallback: if user put "1:1", map to A1:B1
+          if (!itemA && !isNaN(parseInt(partA))) itemA = matchColumnA.find(i => i.id === `A${partA}`);
+          if (!itemB && !isNaN(parseInt(partB))) itemB = matchColumnB.find(i => i.id === `B${partB}`);
+
+          if (itemA && itemB) {
+            return { aId: itemA.id, bId: itemB.id };
+          }
+          return null;
+        }).filter((p): p is MatchPair => p !== null);
+
+      } else if (typeInfo.questionType === 'MCQ') {
         // For MCQ, find the matching option letter
         const optionLetters = ['A', 'B', 'C', 'D'];
         for (let j = 0; j < options.length; j++) {
@@ -326,7 +373,10 @@ function parseCSVToQuestions(csvText: string, topicId: string, filterWorksheetNu
         is_fib: typeInfo.is_fib,
         fib_sentence: typeInfo.fib_sentence,
         multipleAnswers: correctAnswerText.includes('|') ? correctAnswerText : undefined,
-        difficulty
+        difficulty,
+        matchColumnA: typeInfo.questionType === 'MATCH' ? matchColumnA : undefined,
+        matchColumnB: typeInfo.questionType === 'MATCH' ? matchColumnB : undefined,
+        matchCorrectPairs: typeInfo.questionType === 'MATCH' ? matchCorrectPairs : undefined,
       });
     }
   }
@@ -489,9 +539,9 @@ function getSampleQuestions(topicId: string): Question[] {
         topic: 'geography',
       },
     ],
-    math: [
+    fractions: [
       {
-        id: 'math-q1',
+        id: 'fractions-q1',
         text: 'What is 12 + 8?',
         answers: [
           { id: 'A', text: '18' },
@@ -500,7 +550,30 @@ function getSampleQuestions(topicId: string): Question[] {
           { id: 'D', text: '24' },
         ],
         correctAnswer: 'B',
-        topic: 'math',
+        topic: 'fractions',
+      },
+      {
+        id: 'fractions-q2-match',
+        text: 'Match the numbers to their words',
+        questionType: 'MATCH',
+        matchColumnA: [
+          { id: 'A1', text: '1' },
+          { id: 'A2', text: '2' },
+          { id: 'A3', text: '3' }
+        ],
+        matchColumnB: [
+          { id: 'B1', text: 'Three' },
+          { id: 'B2', text: 'One' },
+          { id: 'B3', text: 'Two' }
+        ],
+        matchCorrectPairs: [
+          { aId: 'A1', bId: 'B2' },
+          { aId: 'A2', bId: 'B3' },
+          { aId: 'A3', bId: 'B1' }
+        ],
+        answers: [],
+        correctAnswer: '',
+        topic: 'fractions',
       },
     ],
     spell: [
