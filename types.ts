@@ -40,7 +40,7 @@ export interface Question {
   topic: string;
   worksheetNumber?: number; // Worksheet number from Google Sheets data
   // New fields for question types
-  questionType?: 'MCQ' | 'TTA' | 'FIB'; // Question format type
+  questionType?: 'MCQ' | 'TTA' | 'FIB' | 'SEQUENCE'; // Question format type
   is_fib?: boolean; // Indicates Fill in the Blank question
   fib_sentence?: string; // Sentence with blank (e.g., "The _____ is hot")
   multipleAnswers?: string; // Pipe-separated allowed answers (e.g., "red|blue|green")

@@ -184,7 +184,7 @@ function detectQuestionType(
   questionText: string,
   options: string[],
   typeColumn: string
-): { questionType: 'MCQ' | 'TTA' | 'FIB'; is_fib: boolean; fib_sentence?: string; correctAnswer?: string } {
+): { questionType: 'MCQ' | 'TTA' | 'FIB' | 'SEQUENCE'; is_fib: boolean; fib_sentence?: string; correctAnswer?: string } {
   // Check explicit type column first
   const normalizedType = typeColumn?.trim().toUpperCase();
   if (normalizedType === 'FIB' || normalizedType === 'FILL IN THE BLANK') {
@@ -192,6 +192,9 @@ function detectQuestionType(
   }
   if (normalizedType === 'TTA' || normalizedType === 'TYPE THE ANSWER') {
     return { questionType: 'TTA', is_fib: false };
+  }
+  if (normalizedType === 'SEQUENCE' || normalizedType === 'ORDERING') {
+    return { questionType: 'SEQUENCE', is_fib: false };
   }
 
   // Check for FIB pattern: sentence with quoted answer like "Playing"
@@ -286,6 +289,7 @@ function parseCSVToQuestions(csvText: string, topicId: string, filterWorksheetNu
       // Determine correct answer
       let correctAnswerLetter = 'A';
       let finalCorrectAnswer = correctAnswerText;
+      let finalAnswers = [];
 
       if (typeInfo.questionType === 'MCQ') {
         // For MCQ, find the matching option letter
@@ -297,6 +301,20 @@ function parseCSVToQuestions(csvText: string, topicId: string, filterWorksheetNu
           }
         }
         finalCorrectAnswer = correctAnswerLetter;
+        finalAnswers = [
+          { id: 'A', text: option1 },
+          { id: 'B', text: option2 },
+          { id: 'C', text: option3 },
+          { id: 'D', text: option4 },
+        ];
+      } else if (typeInfo.questionType === 'SEQUENCE') {
+        finalAnswers = [
+          { id: '1', text: option1 },
+          { id: '2', text: option2 },
+          { id: '3', text: option3 },
+          { id: '4', text: option4 },
+        ].filter(a => a.text && a.text.trim().length > 0);
+        finalCorrectAnswer = correctAnswerText;
       } else if (typeInfo.correctAnswer) {
         // For FIB detected from sentence, use extracted answer
         finalCorrectAnswer = typeInfo.correctAnswer;
@@ -313,12 +331,7 @@ function parseCSVToQuestions(csvText: string, topicId: string, filterWorksheetNu
         knowMoreText: knowMoreText || undefined,
         imageUrl: imageUrl || undefined,
         youtubeUrl: youtubeUrl || undefined,
-        answers: typeInfo.questionType === 'MCQ' ? [
-          { id: 'A', text: option1 },
-          { id: 'B', text: option2 },
-          { id: 'C', text: option3 },
-          { id: 'D', text: option4 },
-        ] : [],
+        answers: finalAnswers,
         correctAnswer: finalCorrectAnswer,
         topic: topicId,
         worksheetNumber: questionWorksheetNumber,
@@ -500,6 +513,19 @@ function getSampleQuestions(topicId: string): Question[] {
           { id: 'D', text: '24' },
         ],
         correctAnswer: 'B',
+        topic: 'math',
+      },
+      {
+        id: 'math-seq-1',
+        text: 'Arrange these numbers from SMALLEST to LARGEST',
+        questionType: 'SEQUENCE',
+        answers: [
+          { id: '1', text: '45' },
+          { id: '2', text: '12' },
+          { id: '3', text: '67' },
+          { id: '4', text: '23' }
+        ],
+        correctAnswer: '2,4,1,3',
         topic: 'math',
       },
     ],
